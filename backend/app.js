@@ -16,6 +16,8 @@ const userRoutes = require('./routes/userRoutes');
 
 const app = express();
 
+const BACKEND_URL = process.env.BACKEND_URL || 'http://localhost:5000';
+
 app.use(cors());
 app.use(express.json());
 
@@ -47,7 +49,7 @@ console.log('GOOGLE_CLIENT_SECRET:', process.env.GOOGLE_CLIENT_SECRET);
 passport.use(new GoogleStrategy({
   clientID: process.env.GOOGLE_CLIENT_ID,
   clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-  callbackURL: '/api/auth/google/callback',
+  callbackURL: `${BACKEND_URL}/api/auth/google/callback`,
 }, async (accessToken, refreshToken, profile, done) => {
   try {
     let user = await User.findOne({ googleId: profile.id });
@@ -70,8 +72,6 @@ passport.use(new GoogleStrategy({
 
 // Google OAuth routes
 app.get('/api/auth/google', passport.authenticate('google', { scope: ['profile', 'email'] }));
-
-
 
 app.get('/api/auth/google/callback', passport.authenticate('google', { failureRedirect: '/login', session: false }), (req, res) => {
   const token = jwt.sign({ id: req.user._id }, process.env.JWT_SECRET, { expiresIn: '7d' });
