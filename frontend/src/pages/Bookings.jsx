@@ -176,11 +176,13 @@ const Bookings = () => {
         className="bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-300"
       >
         <div className="p-5 flex flex-col sm:flex-row items-start sm:items-center space-y-4 sm:space-y-0 sm:space-x-6">
-          <img
-            src={vehicle.imageUrl ? `${BACKEND_URL}${vehicle.imageUrl}` : fallbackImage}
-            alt={vehicle.name}
-            className="w-full sm:w-48 h-32 object-cover rounded-md flex-shrink-0"
-          />
+          <div className="flex-shrink-0">
+            <img
+              src={booking.vehicle?.imageUrl || 'https://via.placeholder.com/150x100/f3f4f6/6b7280?text=No+Image'}
+              alt={booking.vehicle?.name || 'Vehicle image'}
+              className="h-24 w-36 rounded-lg object-cover"
+            />
+          </div>
           <div className="flex-grow">
             <p className="text-sm text-gray-500 dark:text-gray-400">{vehicle.category}</p>
             <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">{vehicle.name}</h3>
@@ -432,16 +434,13 @@ const BookingDetailsModal = ({ booking, onClose, onCancelBooking, isCancelling }
                 
                 <div>
                     <h3 className="font-bold text-xl text-gray-800 dark:text-gray-200 border-b border-gray-200 dark:border-gray-700 pb-2 mb-3">Owner Details</h3>
-                    <div className="flex items-center space-x-4">
-                      <img
-                        src={vehicle.user?.avatar ? `${BACKEND_URL}${vehicle.user.avatar}` : fallbackAvatar}
-                        alt={vehicle.user?.name}
-                        className="w-12 h-12 rounded-full"
+                    <div className="flex items-center space-x-3 mt-4">
+                      <img 
+                        src={vehicle.user?.avatar || fallbackAvatar}
+                        alt={vehicle.user?.name} 
+                        className="w-8 h-8 rounded-full object-cover"
                       />
-                      <div>
-                        <div className="font-semibold text-lg text-gray-800 dark:text-gray-100">{vehicle.user?.name}</div>
-                        <div className="text-sm text-gray-500 dark:text-gray-400">{vehicle.user?.email}</div>
-                      </div>
+                      <span className="text-sm font-medium text-gray-700 dark:text-gray-300">{vehicle.user?.name}</span>
                     </div>
                 </div>
               </div>
