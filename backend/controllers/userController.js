@@ -5,10 +5,10 @@ const uploadDocuments = async (req, res) => {
     const { id } = req.user;
     const updateData = {};
     if (req.files.idProof) {
-      updateData.idProof = `/uploads/documents/${req.files.idProof[0].filename}`;
+      updateData.idProof = req.files.idProof[0].path;
     }
     if (req.files.license) {
-      updateData.license = `/uploads/documents/${req.files.license[0].filename}`;
+      updateData.license = req.files.license[0].path;
     }
 
     if (Object.keys(updateData).length === 0) {

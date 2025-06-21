@@ -19,8 +19,8 @@ const addVehicle = async (req, res) => {
   }
 
   if (req.file) {
-    // Use the path to the uploaded file, normalized for URL
-    imageUrl = `/uploads/vehicles/${req.file.filename}`;
+    // Get the secure URL from Cloudinary's response
+    imageUrl = req.file.path;
   }
 
   try {
@@ -105,7 +105,7 @@ const updateVehicle = async (req, res) => {
 
     // If a new image is uploaded, update the imageUrl
     if (req.file) {
-      vehicle.imageUrl = `/uploads/vehicles/${req.file.filename}`;
+      vehicle.imageUrl = req.file.path;
     }
 
     const updatedVehicle = await vehicle.save();
