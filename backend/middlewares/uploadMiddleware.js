@@ -1,10 +1,17 @@
 const multer = require('multer');
 const path = require('path');
+const fs = require('fs');
+
+// Set up the destination directory
+const destinationDir = 'uploads/vehicles/';
+
+// Ensure the destination directory exists
+fs.mkdirSync(destinationDir, { recursive: true });
 
 // Set storage location and filename
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    cb(null, 'uploads/vehicles/');
+    cb(null, destinationDir);
   },
   filename: (req, file, cb) => {
     const ext = path.extname(file.originalname);
