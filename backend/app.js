@@ -90,9 +90,6 @@ app.use('/api/vehicles', vehicleRoutes);
 app.use('/api/bookings', bookingRoutes);
 
 app.use('/api/users', userRoutes);
-
-const uploadsPath = path.join(__dirname, 'uploads');
-console.log(`Serving static files from: ${uploadsPath}`);
-app.use('/uploads', express.static(uploadsPath));
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 module.exports = app;
