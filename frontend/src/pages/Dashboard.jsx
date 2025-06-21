@@ -197,18 +197,12 @@ export default function Dashboard() {
           {activeTab === 'vehicles' && (
             <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="space-y-6">
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {vehicles.map((vehicle) => (
-                  <div key={vehicle._id} className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
-                    <img src={vehicle.imageUrl ? `${BACKEND_URL}${vehicle.imageUrl}` : fallbackImage} alt={vehicle.name} className="w-full h-48 object-cover"/>
+                {vehicles.slice(0, 3).map(vehicle => (
+                  <div key={vehicle._id} className="bg-white dark:bg-gray-800 rounded-xl shadow-sm overflow-hidden border border-gray-200 dark:border-gray-700">
+                    <img src={vehicle.imageUrl || 'https://via.placeholder.com/400x250/f3f4f6/6b7280?text=No+Image'} alt={vehicle.name} className="w-full h-40 object-cover" />
                     <div className="p-4">
-                      <div className="flex items-start justify-between mb-2">
-                        <h4 className="font-semibold text-gray-900 dark:text-white">{vehicle.name}</h4>
-                        <span className={`capitalize px-2 py-1 text-xs font-medium rounded-full ${vehicle.status === 'active' ? 'bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-400' : 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300'}`}>{vehicle.status}</span>
-                      </div>
-                      <div className="flex items-center text-sm text-gray-600 dark:text-gray-400 mb-2">
-                        <MapPin className="h-4 w-4 mr-1" />
-                        {vehicle.location}
-                      </div>
+                      <h3 className="font-semibold text-gray-900 dark:text-white">{vehicle.name}</h3>
+                      <p className="text-sm text-gray-500 dark:text-gray-400">{vehicle.location}</p>
                       <div className="flex items-center justify-between mb-4">
                         <div className="text-lg font-bold text-gray-900 dark:text-white">₹{vehicle.pricePerDay}/day</div>
                         <div className="flex items-center space-x-2">

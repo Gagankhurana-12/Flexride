@@ -274,28 +274,26 @@ export default function VehicleDetails() {
           {/* Left Column - Images and Details */}
           <div className="lg:col-span-2 space-y-6">
             {/* Image Gallery */}
-            <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm overflow-hidden">
-              <div className="relative">
-                <img
-                  src={vehicle.imageUrl ? `${BACKEND_URL}${vehicle.imageUrl}` : 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iODAwIiBoZWlnaHQ9IjQwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KICA8cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjZjNmNGY2Ii8+CiAgPHRleHQgeD0iNTAlIiB5PSI1MCUiIGZvbnQtZmFtaWx5PSJBcmlhbCwgc2Fucy1zZXJpZiIgZm9udC1zaXplPSIyNCIgZmlsbD0iIzY2NzM4NyIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZHk9Ii4zZW0iPlZlaGljbGUgSW1hZ2U8L3RleHQ+Cjwvc3ZnPgo='}
-                  alt={vehicle.name}
-                  className="w-full h-96 object-cover"
-                />
-                <div className="absolute top-4 right-4 flex space-x-2">
-                  <button
-                    onClick={() => setIsLiked(!isLiked)}
-                    className={`p-2 rounded-full transition-colors ${
-                      isLiked 
-                        ? 'bg-red-500 text-white' 
-                        : 'bg-white/80 text-gray-700 hover:bg-white'
-                    }`}
-                  >
-                    <Heart className="h-5 w-5" fill={isLiked ? 'currentColor' : 'none'} />
-                  </button>
-                  <button className="p-2 bg-white/80 text-gray-700 rounded-full hover:bg-white transition-colors">
-                    <Share2 className="h-5 w-5" />
-                  </button>
-                </div>
+            <div className="relative mb-6 rounded-2xl overflow-hidden shadow-lg">
+              <img
+                src={vehicle.imageUrl || 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iODAwIiBoZWlnaHQ9IjQwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KICA8cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjZjNmNGY2Ii8+CiAgPHRleHQgeD0iNTAlIiB5PSI1MCUiIGZvbnQtZmFtaWx5PSJBcmlhbCwgc2Fucy1zZXJpZiIgZm9udC1zaXplPSIyMCIgZmlsbD0iIzY2NzM4NyIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZHk9Ii4zZW0iPk5vIEltYWdlPC90ZXh0Pgo8L3N2Zz4K'}
+                alt={vehicle.name}
+                className="w-full h-96 object-cover"
+              />
+              <div className="absolute top-4 right-4 flex space-x-2">
+                <button
+                  onClick={() => setIsLiked(!isLiked)}
+                  className={`p-2 rounded-full transition-colors ${
+                    isLiked 
+                      ? 'bg-red-500 text-white' 
+                      : 'bg-white/80 text-gray-700 hover:bg-white'
+                  }`}
+                >
+                  <Heart className="h-5 w-5" fill={isLiked ? 'currentColor' : 'none'} />
+                </button>
+                <button className="p-2 bg-white/80 text-gray-700 rounded-full hover:bg-white transition-colors">
+                  <Share2 className="h-5 w-5" />
+                </button>
               </div>
             </div>
 

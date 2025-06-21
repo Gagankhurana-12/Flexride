@@ -117,6 +117,10 @@ export default function Profile() {
     setIsEditing(false);
   };
 
+  const handleAvatarChange = (e) => {
+    // Implementation of handleAvatarChange function
+  };
+
   if (isLoading) {
     return (
       <div className="flex justify-center items-center min-h-screen">
@@ -159,10 +163,15 @@ export default function Profile() {
               </div>
               <div className="flex flex-col sm:flex-row items-center space-y-4 sm:space-y-0 sm:space-x-6 mb-6">
                 <div className="relative flex-shrink-0">
-                  <img src={profile?.avatar ? `${BACKEND_URL}${profile.avatar}` : `https://ui-avatars.com/api/?name=${formData.name}&background=random`} alt={profile?.name} className="w-24 h-24 rounded-full object-cover" />
-                  <button className="absolute bottom-0 right-0 p-2 bg-blue-600 text-white rounded-full hover:bg-blue-700 transition-colors" title="Upload new picture">
-                    <Camera className="h-4 w-4" />
-                  </button>
+                  <div className="flex items-center space-x-4">
+                    <div className="relative">
+                      <img src={profile?.avatar || `https://ui-avatars.com/api/?name=${formData.name}&background=random`} alt={profile?.name} className="w-24 h-24 rounded-full object-cover" />
+                      <label htmlFor="avatar-upload" className="absolute -bottom-2 -right-2 bg-gray-700 text-white p-2 rounded-full cursor-pointer hover:bg-gray-800">
+                        <Camera size={16} />
+                        <input id="avatar-upload" type="file" className="hidden" onChange={handleAvatarChange} />
+                      </label>
+                    </div>
+                  </div>
                 </div>
                 <div className="flex-grow">
                   <h3 className="text-2xl font-bold text-gray-900 dark:text-white text-center sm:text-left">{profile?.name}</h3>
