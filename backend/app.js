@@ -71,6 +71,8 @@ passport.use(new GoogleStrategy({
 // Google OAuth routes
 app.get('/api/auth/google', passport.authenticate('google', { scope: ['profile', 'email'] }));
 
+
+
 app.get('/api/auth/google/callback', passport.authenticate('google', { failureRedirect: '/login', session: false }), (req, res) => {
   const token = jwt.sign({ id: req.user._id }, process.env.JWT_SECRET, { expiresIn: '7d' });
   // Use the flag set in the strategy
@@ -88,6 +90,9 @@ app.use('/api/vehicles', vehicleRoutes);
 app.use('/api/bookings', bookingRoutes);
 
 app.use('/api/users', userRoutes);
-app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+
+const uploadsPath = path.join(__dirname, 'uploads');
+console.log(`Serving static files from: ${uploadsPath}`);
+app.use('/uploads', express.static(uploadsPath));
 
 module.exports = app;

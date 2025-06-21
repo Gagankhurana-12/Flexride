@@ -5,6 +5,8 @@ import VehicleCard from '../components/VehicleCard';
 import Button from '../components/Button';
 import Input from '../components/Input';
 
+const BACKEND_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+
 export default function VehicleListings() {
   const [vehicles, setVehicles] = useState([]);
   const [filteredVehicles, setFilteredVehicles] = useState([]);
@@ -25,7 +27,7 @@ export default function VehicleListings() {
 
   useEffect(() => {
     // Fetch all vehicles from the backend
-    fetch('/api/vehicles')
+    fetch(`${BACKEND_URL}/api/vehicles`)
       .then(res => res.json())
       .then(data => {
         if (Array.isArray(data)) {
