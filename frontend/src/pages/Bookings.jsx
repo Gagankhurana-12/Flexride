@@ -359,7 +359,7 @@ const BookingDetailsModal = ({ booking, onClose, onCancelBooking, isCancelling }
             <div className="grid grid-cols-1 md:grid-cols-5 gap-6 sm:gap-8">
               <div className="md:col-span-3">
                 <img
-                  src={vehicle.imageUrl ? `${BACKEND_URL}${vehicle.imageUrl}` : fallbackImage}
+                  src={vehicle.imageUrl || fallbackImage}
                   alt={vehicle.name}
                   className="w-full h-64 object-cover rounded-lg mb-6"
                 />
