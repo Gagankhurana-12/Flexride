@@ -180,7 +180,7 @@ export default function VehicleDetails() {
     }
 
     try {
-      const response = await fetch('/api/bookings', {
+      const response = await fetch(`${BACKEND_URL}/api/bookings`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
