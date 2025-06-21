@@ -5,7 +5,7 @@ const {
   updateUserProfile
 } = require('../controllers/userController');
 const { protect } = require('../middlewares/authMiddleware');
-const upload = require('../middlewares/uploadMiddleware');
+const upload = require('../config/cloudinary');
 
 const router = express.Router();
 
