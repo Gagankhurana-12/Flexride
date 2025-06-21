@@ -68,7 +68,7 @@ export default function VehicleDetails() {
     const fetchVehicle = async () => {
       try {
         setLoading(true);
-        const response = await fetch(`/api/vehicles/${id}`);
+        const response = await fetch(`${BACKEND_URL}/api/vehicles/${id}`);
         if (!response.ok) {
           throw new Error('Vehicle not found');
         }
@@ -139,8 +139,8 @@ export default function VehicleDetails() {
 
   const handleBooking = async () => {
     if (!user) {
-      addNotification('Please login to book a vehicle.', 'warning');
-      navigate('/login', { state: { from: location.pathname } });
+      addNotification('Please create an account to book a vehicle.', 'warning');
+      navigate('/register', { state: { from: location.pathname } });
       return;
     }
     if (!selectedDates.start) {
