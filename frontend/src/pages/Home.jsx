@@ -5,6 +5,8 @@ import { motion } from 'framer-motion';
 import VehicleCard from '../components/VehicleCard';
 import Button from '../components/Button';
 
+const BACKEND_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+
 const features = [
   {
     icon: <Shield className="h-8 w-8" />,
@@ -39,7 +41,7 @@ export default function Home() {
   const [featuredVehicles, setFeaturedVehicles] = React.useState([]);
 
   React.useEffect(() => {
-    fetch('/api/vehicles')
+    fetch(`${BACKEND_URL}/api/vehicles`)
       .then(res => res.json())
       .then(data => {
         if (Array.isArray(data)) {
