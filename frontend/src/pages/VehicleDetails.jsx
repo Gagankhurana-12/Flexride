@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, Link, useNavigate } from 'react-router-dom';
 import { 
   ArrowLeft, 
   Star, 
@@ -33,6 +33,7 @@ export default function VehicleDetails() {
   const { id } = useParams();
   const { user, token } = useAuth(); // Get token for API calls
   const { addNotification } = useNotification();
+  const navigate = useNavigate();
 
   const [vehicle, setVehicle] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -138,7 +139,8 @@ export default function VehicleDetails() {
 
   const handleBooking = async () => {
     if (!user) {
-      addNotification('Please login to book a vehicle', 'warning');
+      addNotification('Please login to book a vehicle.', 'warning');
+      navigate('/login', { state: { from: location.pathname } });
       return;
     }
     if (!selectedDates.start) {
