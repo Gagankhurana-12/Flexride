@@ -29,7 +29,7 @@ export default function VehicleCard({ vehicle, onBook }) {
   
   const ownerName = user ? user.name : 'Owner';
   const avatarUrl = user && user.avatar 
-    ? `${BACKEND_URL}${user.avatar}` 
+    ? user.avatar 
     : `https://ui-avatars.com/api/?name=${encodeURIComponent(ownerName)}&background=random&color=fff&length=1`;
 
   return (
@@ -41,7 +41,7 @@ export default function VehicleCard({ vehicle, onBook }) {
     >
       <div className="relative">
         <img
-          src={imageUrl ? `${BACKEND_URL}${imageUrl}` : fallbackImage}
+          src={imageUrl || fallbackImage}
           alt={name}
           className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300"
         />

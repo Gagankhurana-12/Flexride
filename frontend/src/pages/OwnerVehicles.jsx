@@ -79,7 +79,7 @@ export default function OwnerVehicles() {
     setFormTransmission(vehicle.transmission || '');
     setFormDescription(vehicle.description || '');
     setFormImage(null);
-    setImagePreview(vehicle.imageUrl ? `${BACKEND_URL}${vehicle.imageUrl}` : null);
+    setImagePreview(vehicle.imageUrl ? vehicle.imageUrl : null);
     setShowAddModal(true);
   };
 
@@ -246,7 +246,7 @@ export default function OwnerVehicles() {
               >
                 <div className="relative">
                   <img
-                    src={vehicle.imageUrl ? `${BACKEND_URL}${vehicle.imageUrl}` : fallbackImage}
+                    src={vehicle.imageUrl ? vehicle.imageUrl : fallbackImage}
                     alt={vehicle.name}
                     className="w-full h-48 object-cover"
                   />
