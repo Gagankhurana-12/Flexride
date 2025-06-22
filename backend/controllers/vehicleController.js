@@ -49,7 +49,7 @@ const addVehicle = async (req, res) => {
 // @access  Public
 const getVehicles = async (req, res) => {
   try {
-    const vehicles = await Vehicle.find()
+    const vehicles = await Vehicle.find({ status: 'active' })
       .populate('user', 'name avatar')
       .sort({ createdAt: -1 });
     res.json(vehicles);
@@ -199,6 +199,29 @@ const rateVehicle = async (req, res) => {
   }
 };
 
+const updateVehicleStatus = async (req, res) => {
+  const { status } = req.body;
+  if (!['active', 'inactive'].includes(status)) {
+    return res.status(400).json({ message: 'Invalid status value.' });
+  }
+
+  try {
+    const vehicle = await Vehicle.findById(req.params.id);
+    if (!vehicle) {
+      return res.status(404).json({ message: 'Vehicle not found.' });
+    }
+    if (vehicle.user.toString() !== req.user._id.toString()) {
+      return res.status(403).json({ message: 'You are not authorized to update this vehicle.' });
+    }
+
+    vehicle.status = status;
+    await vehicle.save();
+    res.json(vehicle);
+  } catch (error) {
+    res.status(500).json({ message: 'Error updating vehicle status.', error: error.message });
+  }
+};
+
 module.exports = {
   addVehicle,
   getVehicles,
@@ -207,4 +230,5 @@ module.exports = {
   deleteVehicle,
   getMyVehicles,
   rateVehicle,
+  updateVehicleStatus,
 };

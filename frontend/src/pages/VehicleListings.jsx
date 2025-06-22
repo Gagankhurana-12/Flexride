@@ -15,7 +15,7 @@ export default function VehicleListings() {
     search: '',
     location: '',
     type: '',
-    priceRange: [0, 5000],
+    priceRange: [0, 100000],
     fuelType: '',
     transmission: '',
     available: false
@@ -68,7 +68,7 @@ export default function VehicleListings() {
       search: '',
       location: '',
       type: '',
-      priceRange: [0, 5000],
+      priceRange: [0, 100000],
       fuelType: '',
       transmission: '',
       available: false
@@ -192,7 +192,7 @@ export default function VehicleListings() {
                     <input
                       type="range"
                       min="0"
-                      max="5000"
+                      max="100000"
                       step="100"
                       value={filters.priceRange[1]}
                       onChange={(e) => handleFilterChange('priceRange', [filters.priceRange[0], parseInt(e.target.value, 10)])}

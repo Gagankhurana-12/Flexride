@@ -141,6 +141,30 @@ export default function OwnerVehicles() {
     }
   };
 
+  const handleStatusToggle = async (vehicleId, currentStatus) => {
+    const newStatus = currentStatus === 'active' ? 'inactive' : 'active';
+    const token = localStorage.getItem('flexride_token');
+    try {
+      const res = await fetch(`${BACKEND_URL}/api/vehicles/${vehicleId}/status`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({ status: newStatus })
+      });
+      if (!res.ok) {
+        const errorData = await res.json();
+        throw new Error(errorData.message || 'Failed to update status');
+      }
+      addNotification('Vehicle status updated successfully', 'success');
+      // Update local state to reflect change immediately
+      setVehicles(prev => prev.map(v => v._id === vehicleId ? { ...v, status: newStatus } : v));
+    } catch (err) {
+      addNotification(err.message, 'error');
+    }
+  };
+
   const handleVehicleSubmit = async (e) => {
     e.preventDefault();
     setIsSubmitting(true);
@@ -251,13 +275,11 @@ export default function OwnerVehicles() {
                     className="w-full h-48 object-cover"
                   />
                   <div className="absolute top-2 right-2">
-                    <span className={`px-2 py-1 text-xs font-medium rounded-full ${
-                      vehicle.status === 'active' 
-                        ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200' 
-                        : 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200'
+                    <div className={`px-2 py-1 text-xs font-medium rounded-full ${
+                      vehicle.status === 'active' ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200' : 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200'
                     }`}>
                       {vehicle.status === 'active' ? 'Active' : 'Inactive'}
-                    </span>
+                    </div>
                   </div>
                 </div>
                 

@@ -45,6 +45,21 @@ exports.createBooking = async (req, res) => {
 
 exports.getUserBookings = async (req, res) => {
   try {
+    const now = new Date();
+    
+    // Automatically update status of completed bookings
+    await Booking.updateMany(
+      { 
+        user: req.user._id, 
+        status: { $in: ['active', 'confirmed'] },
+        $or: [
+          { bookingType: 'daily', endDate: { $lt: now } },
+          { bookingType: 'hourly', startDate: { $lt: now.setHours(0,0,0,0) } } // Simplified: marks hourly as completed next day
+        ]
+      },
+      { $set: { status: 'completed' } }
+    );
+
     const bookings = await Booking.find({ user: req.user._id })
       .populate({
         path: 'vehicle',

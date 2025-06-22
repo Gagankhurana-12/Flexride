@@ -65,6 +65,31 @@ export default function VehicleDetails() {
   }, [startTime, timeSlots]);
 
   useEffect(() => {
+    // When today is selected, ensure startTime is valid
+    if (selectedDates.start && isSameDay(selectedDates.start, startOfToday())) {
+      const currentHour = new Date().getHours();
+      const startHour = parseInt(startTime.split(':')[0]);
+      if (startHour <= currentHour) {
+        const nextHour = currentHour + 1;
+        const newStartTime = timeSlots.find(time => parseInt(time.split(':')[0]) === nextHour);
+        if (newStartTime) {
+          setStartTime(newStartTime);
+        }
+      }
+    }
+  }, [selectedDates.start, timeSlots]);
+
+  useEffect(() => {
+    const startHour = parseInt(startTime.split(':')[0]);
+    const endHour = parseInt(endTime.split(':')[0]);
+    if (startHour >= endHour) {
+      // Find the next available time slot and set it as the new end time
+      const nextAvailableTime = timeSlots.find(time => parseInt(time.split(':')[0]) > startHour);
+      setEndTime(nextAvailableTime || '23:00'); // Fallback to the last possible time
+    }
+  }, [startTime, endTime, timeSlots]);
+
+  useEffect(() => {
     const fetchVehicle = async () => {
       try {
         setLoading(true);
