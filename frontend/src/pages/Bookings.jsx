@@ -283,29 +283,31 @@ const Bookings = () => {
 }
 
 const BookingFilter = ({ filters, activeFilter, setActiveFilter }) => (
-  <div className="flex space-x-2 sm:space-x-4 border-b border-gray-200 dark:border-gray-700 mb-6">
-    {Object.keys(filters).map((filter) => (
-      <button
-        key={filter}
-        onClick={() => setActiveFilter(filter)}
-        className={`px-3 py-3 text-sm sm:text-base font-medium transition-colors duration-200 focus:outline-none border-b-2 ${
-          activeFilter === filter
-            ? 'border-blue-500 text-blue-600 dark:text-blue-400 font-semibold'
-            : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200'
-        }`}
-      >
-        <span>{filter}</span>
-        <span
-          className={`ml-2 px-2 py-0.5 rounded-full text-xs font-semibold ${
+  <div className="mb-6 border-b border-gray-200 dark:border-gray-700">
+    <div className="-mb-px flex space-x-4 sm:space-x-8 overflow-x-auto whitespace-nowrap">
+      {Object.keys(filters).map((filter) => (
+        <button
+          key={filter}
+          onClick={() => setActiveFilter(filter)}
+          className={`capitalize py-3 px-1 border-b-2 font-medium transition-colors duration-200 focus:outline-none ${
             activeFilter === filter
-              ? 'bg-blue-500 text-white'
-              : 'bg-gray-200 dark:bg-gray-600 text-gray-600 dark:text-gray-200'
+              ? 'border-blue-500 text-blue-500'
+              : 'border-transparent text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300'
           }`}
         >
-          {filters[filter].length}
-        </span>
-      </button>
-    ))}
+          <span>{filter}</span>
+          <span
+            className={`ml-2 px-2 py-0.5 rounded-full text-xs font-semibold ${
+              activeFilter === filter
+                ? 'bg-blue-500 text-white'
+                : 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-200'
+            }`}
+          >
+            {filters[filter].length}
+          </span>
+        </button>
+      ))}
+    </div>
   </div>
 );
 
