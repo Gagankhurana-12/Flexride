@@ -211,7 +211,7 @@ export default function Dashboard() {
                       </div>
                       <div className="flex space-x-2">
                         <Button as={Link} to={`/vehicles/${vehicle._id}`} variant="outline" size="sm" className="flex-1" icon={<Eye className="h-4 w-4 mr-1" />}>View</Button>
-                        <Button as={Link} to="/owner-vehicles" variant="outline" size="sm" className="flex-1" icon={<Edit className="h-4 w-4 mr-1" />}>Edit</Button>
+                        <Button as={Link} to="/my-vehicles" variant="outline" size="sm" className="flex-1" icon={<Edit className="h-4 w-4 mr-1" />}>Edit</Button>
                       </div>
                     </div>
                   </div>

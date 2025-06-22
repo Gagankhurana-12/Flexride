@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { Routes, Route, useNavigate } from 'react-router-dom';
+import { Routes, Route, useNavigate, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { NotificationProvider } from './contexts/NotificationContext';
 import { ThemeProvider } from './contexts/ThemeContext';
@@ -62,6 +62,8 @@ function App() {
                     </ProtectedRoute>
                   } 
                 />
+                {/* Catch-all route for malformed URLs */}
+                <Route path="*" element={<Navigate to="/" replace />} />
               </Routes>
             </main>
             <Toaster position="top-right" />

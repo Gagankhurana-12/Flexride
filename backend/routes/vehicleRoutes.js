@@ -6,7 +6,8 @@ const {
   updateVehicle,
   deleteVehicle,
   getMyVehicles,
-  rateVehicle
+  rateVehicle,
+  updateVehicleStatus
 } = require('../controllers/vehicleController');
 const { protect } = require('../middlewares/authMiddleware');
 const upload = require('../config/cloudinary');
@@ -25,5 +26,8 @@ router.post('/', protect, upload.single('image'), addVehicle);
 router.put('/:id', protect, upload.single('image'), updateVehicle);
 router.delete('/:id', protect, deleteVehicle);
 router.post('/:vehicleId/bookings/:bookingId/rate', protect, rateVehicle);
+
+// Route to update vehicle status
+router.patch('/:id/status', protect, updateVehicleStatus);
 
 module.exports = router;
