@@ -7,7 +7,7 @@ import Input from '../components/Input';
 import RatingStars from '../components/RatingStars';
 import { useAuth } from '../contexts/AuthContext';
 import { useNotification } from '../contexts/NotificationContext';
-import { format, isBefore, isAfter, isToday, startOfDay } from 'date-fns';
+import { format, isBefore, isAfter, isToday, startOfDay, endOfDay, parseISO } from 'date-fns';
 import toast from 'react-hot-toast';
 
 const BACKEND_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
@@ -124,15 +124,20 @@ const Bookings = () => {
       const type = booking.bookingType || 'daily';
 
       if (type === 'hourly') {
-        const startDate = new Date(booking.startDate);
+        const bookingDate = startOfDay(new Date(booking.startDate));
         const [startH, startM] = (booking.startTime || "00:00").split(":");
         const [endH, endM] = (booking.endTime || "00:00").split(":");
 
-        const startDateTime = new Date(startDate);
+        const startDateTime = new Date(bookingDate.getTime());
         startDateTime.setHours(startH, startM, 0, 0);
 
-        const endDateTime = new Date(startDate);
+        const endDateTime = new Date(bookingDate.getTime());
         endDateTime.setHours(endH, endM, 0, 0);
+
+        // Handle overnight booking if endTime is earlier than startTime
+        if (endDateTime < startDateTime) {
+          endDateTime.setDate(endDateTime.getDate() + 1);
+        }
 
         if (isBefore(now, startDateTime)) {
           categories.Upcoming.push(booking);
@@ -143,11 +148,8 @@ const Bookings = () => {
         }
 
       } else { // Daily booking
-        const startDate = new Date(booking.startDate);
-        startDate.setHours(0, 0, 0, 0);
-
-        const endDate = booking.endDate ? new Date(booking.endDate) : new Date(booking.startDate);
-        endDate.setHours(23, 59, 59, 999);
+        const startDate = startOfDay(new Date(booking.startDate));
+        const endDate = endOfDay(new Date(booking.endDate || booking.startDate));
         
         if (isBefore(now, startDate)) {
             categories.Upcoming.push(booking);
@@ -206,7 +208,7 @@ const Bookings = () => {
             <Button variant="outline" size="sm" onClick={() => setSelectedBooking(booking)}>
               View Details
             </Button>
-            {booking.status === 'completed' && !booking.isRated && (
+            {activeFilter === 'Completed' && !booking.isRated && (
               <Button
                 variant="primary"
                 size="sm"

@@ -5,10 +5,47 @@ import { Car, Calendar, DollarSign, Star, Plus, Eye, Edit, Trash2, TrendingUp, U
 import { useAuth } from '../contexts/AuthContext';
 import Button from '../components/Button';
 import RatingStars from '../components/RatingStars';
-import { format, parseISO } from 'date-fns';
+import { format, parseISO, isBefore, isAfter, startOfDay, endOfDay } from 'date-fns';
 import toast from 'react-hot-toast';
 
 const BACKEND_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+
+const getBookingStatus = (booking) => {
+  if (booking.status === 'cancelled') {
+    return 'cancelled';
+  }
+
+  const now = new Date();
+  const type = booking.bookingType || 'daily';
+
+  if (type === 'hourly') {
+    const bookingDate = startOfDay(new Date(booking.startDate));
+    const [startH, startM] = (booking.startTime || "00:00").split(":");
+    const [endH, endM] = (booking.endTime || "00:00").split(":");
+
+    const startDateTime = new Date(bookingDate.getTime());
+    startDateTime.setHours(startH, startM, 0, 0);
+
+    const endDateTime = new Date(bookingDate.getTime());
+    endDateTime.setHours(endH, endM, 0, 0);
+
+    if (endDateTime < startDateTime) {
+      endDateTime.setDate(endDateTime.getDate() + 1);
+    }
+
+    if (isBefore(now, startDateTime)) return 'upcoming';
+    if (isAfter(now, endDateTime)) return 'completed';
+    return 'active';
+
+  } else { // Daily
+    const startDate = startOfDay(new Date(booking.startDate));
+    const endDate = endOfDay(new Date(booking.endDate || booking.startDate));
+
+    if (isBefore(now, startDate)) return 'upcoming';
+    if (isAfter(now, endDate)) return 'completed';
+    return 'active';
+  }
+};
 
 const fallbackImage = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KICA8cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjZDJkNmRkIi8+CiAgPHRleHQgeD0iNTAlIiB5PSI1MCUiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC1zaXplPSIxNiIgZmlsbD0iI2ZmZiIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZHk9Ii4zZW0iPlZlaGljbGU8L3RleHQ+Cjwvc3ZnPgo=';
 
@@ -72,7 +109,7 @@ export default function Dashboard() {
   };
 
   const totalEarnings = bookings
-    .filter(b => b.status === 'completed')
+    .filter(b => getBookingStatus(b) === 'completed')
     .reduce((sum, b) => sum + b.totalPrice, 0);
 
   const averageRating = vehicles.length > 0
@@ -147,19 +184,22 @@ export default function Dashboard() {
               <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} className="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6 border border-gray-200 dark:border-gray-700">
                 <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Recent Activity</h3>
                 <div className="space-y-4">
-                  {bookings.slice(0, 3).map(b => (
-                    <div key={b._id} className="flex items-center space-x-3">
-                      <div className={`w-2 h-2 ${getStatusColor(b.status).split(' ')[0]} rounded-full`}></div>
-                      <div className="flex-1">
-                        <p className="text-sm text-gray-900 dark:text-white">
-                          Booking {b.status} for {b.vehicle.name}
-                        </p>
-                        <p className="text-xs text-gray-500 dark:text-gray-400">
-                          {format(parseISO(b.createdAt), 'MMM d, yyyy')}
-                        </p>
+                  {bookings.slice(0, 3).map(b => {
+                    const status = getBookingStatus(b);
+                    return (
+                      <div key={b._id} className="flex items-center space-x-3">
+                        <div className={`w-2 h-2 ${getStatusColor(status).split(' ')[0]} rounded-full`}></div>
+                        <div className="flex-1">
+                          <p className="text-sm text-gray-900 dark:text-white">
+                            Booking {status} for {b.vehicle.name}
+                          </p>
+                          <p className="text-xs text-gray-500 dark:text-gray-400">
+                            {format(parseISO(b.createdAt), 'MMM d, yyyy')}
+                          </p>
+                        </div>
                       </div>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               </motion.div>
             </div>
@@ -178,16 +218,19 @@ export default function Dashboard() {
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
-                    {bookings.map((booking) => (
-                      <tr key={booking._id} className="hover:bg-gray-50 dark:hover:bg-gray-700">
-                        <td className="px-6 py-4 whitespace-nowrap"><div className="text-sm font-medium text-gray-900 dark:text-white">{booking.vehicle.name}</div></td>
-                        <td className="px-6 py-4 whitespace-nowrap"><div className="text-sm text-gray-500 dark:text-gray-400">
-                          {booking.startDate ? format(parseISO(booking.startDate), 'MMM d, yyyy') : 'N/A'} - {booking.endDate ? format(parseISO(booking.endDate), 'MMM d, yyyy') : 'N/A'}
-                        </div></td>
-                        <td className="px-6 py-4 whitespace-nowrap"><div className="text-sm font-medium text-gray-900 dark:text-white">₹{booking.totalPrice.toLocaleString()}</div></td>
-                        <td className="px-6 py-4 whitespace-nowrap"><span className={`capitalize inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getStatusColor(booking.status)}`}>{booking.status}</span></td>
-                      </tr>
-                    ))}
+                    {bookings.map((booking) => {
+                      const status = getBookingStatus(booking);
+                      return (
+                        <tr key={booking._id} className="hover:bg-gray-50 dark:hover:bg-gray-700">
+                          <td className="px-6 py-4 whitespace-nowrap"><div className="text-sm font-medium text-gray-900 dark:text-white">{booking.vehicle.name}</div></td>
+                          <td className="px-6 py-4 whitespace-nowrap"><div className="text-sm text-gray-500 dark:text-gray-400">
+                            {booking.startDate ? format(parseISO(booking.startDate), 'MMM d, yyyy') : 'N/A'} - {booking.endDate ? format(parseISO(booking.endDate), 'MMM d, yyyy') : 'N/A'}
+                          </div></td>
+                          <td className="px-6 py-4 whitespace-nowrap"><div className="text-sm font-medium text-gray-900 dark:text-white">₹{booking.totalPrice.toLocaleString()}</div></td>
+                          <td className="px-6 py-4 whitespace-nowrap"><span className={`capitalize inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getStatusColor(status)}`}>{status}</span></td>
+                        </tr>
+                      );
+                    })}
                   </tbody>
                 </table>
               </div>
@@ -197,7 +240,7 @@ export default function Dashboard() {
           {activeTab === 'vehicles' && (
             <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="space-y-6">
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {vehicles.slice(0, 3).map(vehicle => (
+                {vehicles.map(vehicle => (
                   <div key={vehicle._id} className="bg-white dark:bg-gray-800 rounded-xl shadow-sm overflow-hidden border border-gray-200 dark:border-gray-700">
                     <img src={vehicle.imageUrl || 'https://via.placeholder.com/400x250/f3f4f6/6b7280?text=No+Image'} alt={vehicle.name} className="w-full h-40 object-cover" />
                     <div className="p-4">
