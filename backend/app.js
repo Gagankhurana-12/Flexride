@@ -75,14 +75,8 @@ app.get('/api/auth/google', passport.authenticate('google', { scope: ['profile',
 
 app.get('/api/auth/google/callback', passport.authenticate('google', { failureRedirect: '/login', session: false }), (req, res) => {
   const token = jwt.sign({ id: req.user._id }, process.env.JWT_SECRET, { expiresIn: '7d' });
-  // Use the flag set in the strategy
-  const isNewUser = req.user._isNewUser;
   const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
-  if (isNewUser) {
-    res.redirect(`${frontendUrl}/register?token=${token}`);
-  } else {
-    res.redirect(`${frontendUrl}/dashboard?token=${token}`);
-  }
+  res.redirect(`${frontendUrl}/?token=${token}`);
 });
 
 app.use('/api/auth', authRoutes);

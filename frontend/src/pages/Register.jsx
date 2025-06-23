@@ -72,7 +72,7 @@ export default function Register() {
 
     try {
       await register(formData);
-      navigate('/dashboard');
+      navigate('/');
     } catch (error) {
       setErrors({ general: 'Registration failed. Please try again.' });
     }
