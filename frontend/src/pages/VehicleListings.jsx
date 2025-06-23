@@ -21,7 +21,7 @@ export default function VehicleListings() {
     available: false
   });
 
-  const vehicleTypes = ['Sedan', 'Hatchback', 'SUV', 'Motorcycle', 'Sports Bike', 'Electric SUV'];
+  const vehicleTypes = ['Sedan', 'Hatchback', 'SUV', 'Motorcycle', 'Sports Bike', 'Electric SUV', 'Scooter'];
   const fuelTypes = ['Petrol', 'Diesel', 'Electric'];
   const transmissionTypes = ['Manual', 'Automatic'];
 
