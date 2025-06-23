@@ -41,7 +41,7 @@ export default function Login() {
     if (!validateForm()) return;
     try {
       await login(email, password);
-      navigate(from, { replace: true });
+      navigate('/', { replace: true });
     } catch (error) {
       setErrors({ general: 'Invalid email or password' });
     }
