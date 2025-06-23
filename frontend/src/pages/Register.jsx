@@ -23,7 +23,7 @@ export default function Register() {
   const { register, isLoading, fetchCurrentUser } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
-  const from = location.state?.from?.pathname || '/my-vehicles';
+  const from = location.state?.from?.pathname || '/';
 
   const handleChange = (e) => {
     setFormData({
