@@ -503,6 +503,7 @@ export default function OwnerVehicles() {
                           <option value="Hatchback">Hatchback</option>
                           <option value="SUV">SUV</option>
                           <option value="Motorcycle">Motorcycle</option>
+                          <option value="Scooter">Scooter</option>
                           <option value="Sports Bike">Sports Bike</option>
                           <option value="Electric SUV">Electric SUV</option>
                         </select>
