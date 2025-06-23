@@ -20,6 +20,7 @@ export default function VehicleListings() {
     transmission: '',
     available: false
   });
+  const [sortOption, setSortOption] = useState('featured');
 
   const vehicleTypes = ['Sedan', 'Hatchback', 'SUV', 'Motorcycle', 'Sports Bike', 'Electric SUV', 'Scooter'];
   const fuelTypes = ['Petrol', 'Diesel', 'Electric'];
@@ -231,45 +232,63 @@ export default function VehicleListings() {
           <p className="text-gray-600 dark:text-gray-400">
             {filteredVehicles.length} vehicles found
           </p>
-          <select className="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:text-white">
-            <option>Sort by: Featured</option>
-            <option>Price: Low to High</option>
-            <option>Price: High to Low</option>
-            <option>Rating: High to Low</option>
-            <option>Newest First</option>
+          <select
+            value={sortOption}
+            onChange={e => setSortOption(e.target.value)}
+            className="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:text-white"
+          >
+            <option value="featured">Sort by: Featured</option>
+            <option value="priceLowHigh">Price: Low to High</option>
+            <option value="priceHighLow">Price: High to Low</option>
+            <option value="ratingHighLow">Rating: High to Low</option>
+            <option value="newest">Newest First</option>
           </select>
         </div>
 
         {/* Vehicle Grid */}
-        {filteredVehicles.length > 0 ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {filteredVehicles.map((vehicle, index) => (
-              <motion.div
-                key={vehicle._id}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6, delay: index * 0.1 }}
-              >
-                <VehicleCard vehicle={vehicle} />
-              </motion.div>
-            ))}
-          </div>
-        ) : (
-          <div className="text-center py-12">
-            <div className="text-gray-400 dark:text-gray-600 mb-4">
-              <Search className="h-16 w-16 mx-auto" />
-            </div>
-            <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">
-              No vehicles found
-            </h3>
-            <p className="text-gray-500 dark:text-gray-400 mb-4">
-              Try adjusting your search criteria or filters
-            </p>
-            <Button onClick={clearFilters} variant="outline">
-              Clear All Filters
-            </Button>
-          </div>
-        )}
+        {
+          (() => {
+            let sortedVehicles = [...filteredVehicles];
+            if (sortOption === 'priceLowHigh') {
+              sortedVehicles.sort((a, b) => a.pricePerDay - b.pricePerDay);
+            } else if (sortOption === 'priceHighLow') {
+              sortedVehicles.sort((a, b) => b.pricePerDay - a.pricePerDay);
+            } else if (sortOption === 'ratingHighLow') {
+              sortedVehicles.sort((a, b) => (b.ratings || 0) - (a.ratings || 0));
+            } else if (sortOption === 'newest') {
+              sortedVehicles.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+            }
+            return sortedVehicles.length > 0 ? (
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                {sortedVehicles.map((vehicle, index) => (
+                  <motion.div
+                    key={vehicle._id}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.6, delay: index * 0.1 }}
+                  >
+                    <VehicleCard vehicle={vehicle} />
+                  </motion.div>
+                ))}
+              </div>
+            ) : (
+              <div className="text-center py-12">
+                <div className="text-gray-400 dark:text-gray-600 mb-4">
+                  <Search className="h-16 w-16 mx-auto" />
+                </div>
+                <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">
+                  No vehicles found
+                </h3>
+                <p className="text-gray-500 dark:text-gray-400 mb-4">
+                  Try adjusting your search criteria or filters
+                </p>
+                <Button onClick={clearFilters} variant="outline">
+                  Clear All Filters
+                </Button>
+              </div>
+            );
+          })()
+        }
       </div>
     </div>
   );
