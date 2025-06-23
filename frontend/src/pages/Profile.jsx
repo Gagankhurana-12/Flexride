@@ -6,7 +6,7 @@ import Button from '../components/Button';
 import Input from '../components/Input';
 import RatingStars from '../components/RatingStars';
 import { format } from 'date-fns';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useNotification } from '../contexts/NotificationContext';
 
 const BACKEND_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
@@ -14,6 +14,7 @@ const BACKEND_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
 export default function Profile() {
   const { token, logout } = useAuth();
   const { addNotification } = useNotification();
+  const navigate = useNavigate();
 
   // State for data
   const [profile, setProfile] = useState(null);
@@ -215,7 +216,7 @@ export default function Profile() {
               <div className="space-y-3">
                  <Button as={Link} to="/bookings" variant="outline" className="w-full justify-start" icon={<Calendar className="h-5 w-5 mr-2" />}>My Bookings</Button>
                  <Button as={Link} to="/my-vehicles" variant="outline" className="w-full justify-start" icon={<Car className="h-5 w-5 mr-2" />}>My Vehicles</Button>
-                 <Button variant="destructive-outline" onClick={logout} className="w-full justify-start">Log Out</Button>
+                 <Button variant="destructive-outline" onClick={() => navigate('/logout')} className="w-full justify-start">Log Out</Button>
               </div>
             </motion.div>
           </div>

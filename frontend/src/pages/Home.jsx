@@ -88,7 +88,7 @@ export default function Home() {
                   <ArrowRight className="h-5 w-5 ml-2" />
                 </Button>
               </Link>
-              <Link to="/register">
+              <Link to="/my-vehicles">
                 <Button size="lg" variant="outline" className="border-white text-blue-600 bg-white hover:bg-blue-50 hover:text-blue-700 min-w-[200px]">
                   List Your Vehicle
                 </Button>

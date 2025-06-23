@@ -8,14 +8,22 @@ import { motion, AnimatePresence } from 'framer-motion';
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
+  const [pendingLogout, setPendingLogout] = useState(false);
   const { user, logout } = useAuth();
   const { theme, toggleTheme } = useTheme();
   const navigate = useNavigate();
   const location = useLocation();
 
+  React.useEffect(() => {
+    if (pendingLogout) {
+      logout();
+      setIsProfileOpen(false);
+      setPendingLogout(false);
+    }
+  }, [pendingLogout, logout]);
+
   const handleLogout = () => {
-    logout();
-    navigate('/');
+    navigate('/logout');
     setIsProfileOpen(false);
   };
 
