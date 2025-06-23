@@ -15,7 +15,7 @@ export default function Login() {
   const navigate = useNavigate();
   const location = useLocation();
 
-  const from = location.state?.from?.pathname || '/dashboard';
+  const from = location.state?.from?.pathname || '/my-vehicles';
 
   const validateForm = () => {
     const newErrors = {};
@@ -41,7 +41,7 @@ export default function Login() {
     if (!validateForm()) return;
     try {
       await login(email, password);
-      navigate('/', { replace: true });
+      navigate(from, { replace: true });
     } catch (error) {
       setErrors({ general: 'Invalid email or password' });
     }

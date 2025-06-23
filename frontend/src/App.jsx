@@ -13,6 +13,7 @@ import Dashboard from './pages/Dashboard';
 import Profile from './pages/Profile';
 import Bookings from './pages/Bookings';
 import OwnerVehicles from './pages/OwnerVehicles';
+import Logout from './pages/Logout';
 import ProtectedRoute from './components/ProtectedRoute';
 import { Toaster } from 'react-hot-toast';
 
@@ -62,6 +63,7 @@ function App() {
                     </ProtectedRoute>
                   } 
                 />
+                <Route path="/logout" element={<Logout />} />
                 {/* Catch-all route for malformed URLs */}
                 <Route path="*" element={<Navigate to="/" replace />} />
               </Routes>

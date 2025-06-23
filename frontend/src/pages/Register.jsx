@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { User, Mail, Lock, Eye, EyeOff, Phone } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import Button from '../components/Button';
@@ -22,6 +22,8 @@ export default function Register() {
   const [acceptedTerms, setAcceptedTerms] = useState(false);
   const { register, isLoading, fetchCurrentUser } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
+  const from = location.state?.from?.pathname || '/my-vehicles';
 
   const handleChange = (e) => {
     setFormData({
@@ -72,7 +74,7 @@ export default function Register() {
 
     try {
       await register(formData);
-      navigate('/');
+      navigate(from, { replace: true });
     } catch (error) {
       setErrors({ general: 'Registration failed. Please try again.' });
     }
