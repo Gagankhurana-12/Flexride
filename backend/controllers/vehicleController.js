@@ -1,6 +1,46 @@
 const Vehicle = require('../models/Vehicle');
 const Booking = require('../models/Booking');
 
+const getBookingStatus = (booking) => {
+  if (booking.status === 'cancelled') return 'cancelled';
+
+  const now = new Date();
+  const type = booking.bookingType || 'daily';
+
+  if (type === 'hourly') {
+    const bookingDate = new Date(booking.startDate);
+    bookingDate.setUTCHours(0, 0, 0, 0); 
+    
+    const [startH, startM] = (booking.startTime || "00:00").split(":");
+    const [endH, endM] = (booking.endTime || "00:00").split(":");
+
+    const startDateTime = new Date(bookingDate);
+    startDateTime.setUTCHours(parseInt(startH), parseInt(startM), 0, 0);
+
+    const endDateTime = new Date(bookingDate);
+    endDateTime.setUTCHours(parseInt(endH), parseInt(endM), 0, 0);
+
+    if (endDateTime < startDateTime) {
+      endDateTime.setDate(endDateTime.getDate() + 1);
+    }
+    
+    if (now < startDateTime) return 'upcoming';
+    if (now > endDateTime) return 'completed';
+    return 'active';
+
+  } else { // Daily
+    const startDate = new Date(booking.startDate);
+    startDate.setUTCHours(0, 0, 0, 0);
+
+    const endDate = new Date(booking.endDate || booking.startDate);
+    endDate.setUTCHours(23, 59, 59, 999);
+
+    if (now < startDate) return 'upcoming';
+    if (now > endDate) return 'completed';
+    return 'active';
+  }
+};
+
 // @desc    Add a new vehicle
 // @route   POST /api/vehicles
 // @access  Private
@@ -170,9 +210,12 @@ const rateVehicle = async (req, res) => {
     if (booking.user.toString() !== req.user._id.toString()) {
       return res.status(403).json({ message: 'You are not authorized to rate this booking.' });
     }
-    if (booking.status !== 'completed') {
+    
+    const realTimeStatus = getBookingStatus(booking);
+    if (realTimeStatus !== 'completed') {
       return res.status(400).json({ message: 'You can only rate completed bookings.' });
     }
+
     if (booking.isRated) {
       return res.status(400).json({ message: 'You have already rated this booking.' });
     }

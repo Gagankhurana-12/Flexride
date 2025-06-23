@@ -128,8 +128,8 @@ export default function VehicleDetails() {
       // If no start date is set, or if a range is already complete, start a new selection.
       setSelectedDates({ start: date, end: null });
     } else if (isSameDay(date, start)) {
-      // If the same date is clicked again, deselect it.
-      setSelectedDates({ start: null, end: null });
+      // If the same date is clicked again, set it as a single-day booking.
+      setSelectedDates({ start, end: date });
     } else if (date < start) {
       // If a date before the start date is clicked, start a new selection.
       setSelectedDates({ start: date, end: null });
@@ -173,8 +173,7 @@ export default function VehicleDetails() {
       return;
     }
     if (bookingType === 'daily' && !selectedDates.end) {
-      addNotification('Please select an end date for daily booking', 'warning');
-      return;
+      selectedDates.end = selectedDates.start;
     }
     
     if (bookingType === 'hourly') {

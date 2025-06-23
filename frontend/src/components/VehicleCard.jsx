@@ -12,7 +12,7 @@ export default function VehicleCard({ vehicle, onBook }) {
     _id,
     name,
     pricePerDay,
-    rating = 4.5,
+    ratings: vehicleRating = 0,
     reviewCount = 0,
     location,
     imageUrl,
@@ -67,7 +67,7 @@ export default function VehicleCard({ vehicle, onBook }) {
           <div className="flex items-center space-x-1">
             <Star className="h-4 w-4 text-yellow-400 fill-current" />
             <span className="text-sm text-gray-600 dark:text-gray-400">
-              {rating} ({reviewCount})
+              {vehicleRating.toFixed(1)} ({reviewCount})
             </span>
           </div>
         </div>
