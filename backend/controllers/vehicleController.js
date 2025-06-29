@@ -7,37 +7,66 @@ const getBookingStatus = (booking) => {
   const now = new Date();
   const type = booking.bookingType || 'daily';
 
-  if (type === 'hourly') {
-    const bookingDate = new Date(booking.startDate);
-    bookingDate.setUTCHours(0, 0, 0, 0); 
-    
-    const [startH, startM] = (booking.startTime || "00:00").split(":");
-    const [endH, endM] = (booking.endTime || "00:00").split(":");
+  try {
+    if (type === 'hourly') {
+      // Validate startDate exists and is valid
+      if (!booking.startDate || isNaN(new Date(booking.startDate).getTime())) {
+        return 'unknown';
+      }
 
-    const startDateTime = new Date(bookingDate);
-    startDateTime.setUTCHours(parseInt(startH), parseInt(startM), 0, 0);
+      const bookingDate = new Date(booking.startDate);
+      bookingDate.setUTCHours(0, 0, 0, 0); 
+      
+      // Safely parse time strings with fallbacks
+      const startTimeStr = booking.startTime || "00:00";
+      const endTimeStr = booking.endTime || "00:00";
+      
+      const [startH, startM] = startTimeStr.split(":").map(Number);
+      const [endH, endM] = endTimeStr.split(":").map(Number);
 
-    const endDateTime = new Date(bookingDate);
-    endDateTime.setUTCHours(parseInt(endH), parseInt(endM), 0, 0);
+      // Validate parsed time values
+      if (isNaN(startH) || isNaN(startM) || isNaN(endH) || isNaN(endM)) {
+        return 'unknown';
+      }
 
-    if (endDateTime < startDateTime) {
-      endDateTime.setDate(endDateTime.getDate() + 1);
+      const startDateTime = new Date(bookingDate);
+      startDateTime.setUTCHours(startH, startM, 0, 0);
+
+      const endDateTime = new Date(bookingDate);
+      endDateTime.setUTCHours(endH, endM, 0, 0);
+
+      if (endDateTime < startDateTime) {
+        endDateTime.setDate(endDateTime.getDate() + 1);
+      }
+      
+      if (now < startDateTime) return 'upcoming';
+      if (now > endDateTime) return 'completed';
+      return 'active';
+
+    } else { // Daily
+      // Validate startDate exists and is valid
+      if (!booking.startDate || isNaN(new Date(booking.startDate).getTime())) {
+        return 'unknown';
+      }
+
+      const startDate = new Date(booking.startDate);
+      startDate.setUTCHours(0, 0, 0, 0);
+
+      // Use startDate as fallback if endDate is invalid
+      const endDateInput = booking.endDate && !isNaN(new Date(booking.endDate).getTime()) 
+        ? booking.endDate 
+        : booking.startDate;
+      
+      const endDate = new Date(endDateInput);
+      endDate.setUTCHours(23, 59, 59, 999);
+
+      if (now < startDate) return 'upcoming';
+      if (now > endDate) return 'completed';
+      return 'active';
     }
-    
-    if (now < startDateTime) return 'upcoming';
-    if (now > endDateTime) return 'completed';
-    return 'active';
-
-  } else { // Daily
-    const startDate = new Date(booking.startDate);
-    startDate.setUTCHours(0, 0, 0, 0);
-
-    const endDate = new Date(booking.endDate || booking.startDate);
-    endDate.setUTCHours(23, 59, 59, 999);
-
-    if (now < startDate) return 'upcoming';
-    if (now > endDate) return 'completed';
-    return 'active';
+  } catch (error) {
+    console.error('Error in getBookingStatus:', error);
+    return 'unknown';
   }
 };
 
@@ -212,6 +241,9 @@ const rateVehicle = async (req, res) => {
     }
     
     const realTimeStatus = getBookingStatus(booking);
+    if (realTimeStatus === 'unknown') {
+      return res.status(400).json({ message: 'Unable to determine booking status. Please contact support.' });
+    }
     if (realTimeStatus !== 'completed') {
       return res.status(400).json({ message: 'You can only rate completed bookings.' });
     }
@@ -238,6 +270,7 @@ const rateVehicle = async (req, res) => {
 
     res.status(200).json({ message: 'Thank you for your rating!' });
   } catch (error) {
+    console.error('Rating error:', error);
     res.status(500).json({ message: 'Server error while processing your rating.', error: error.message });
   }
 };
