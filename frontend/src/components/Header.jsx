@@ -262,6 +262,13 @@ export default function Header() {
                       Dashboard
                     </Link>
                     <Link
+                      to="/profile"
+                      className="block px-3 py-2 text-base font-medium text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400"
+                      onClick={() => setIsMenuOpen(false)}
+                    >
+                      Profile
+                    </Link>
+                    <Link
                       to="/bookings"
                       className="block px-3 py-2 text-base font-medium text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400"
                       onClick={() => setIsMenuOpen(false)}
