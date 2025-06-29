@@ -150,7 +150,7 @@ const Chat = () => {
   if (!isChatOpen || !user) return null;
 
   return (
-    <div className="fixed bottom-4 right-4 w-96 h-[600px] bg-white dark:bg-gray-800 rounded-lg shadow-xl border border-gray-200 dark:border-gray-700 z-50">
+    <div className="fixed bottom-2 left-0 right-0 mx-auto w-full max-w-md h-[90vh] max-h-[600px] bg-white dark:bg-gray-800 rounded-lg shadow-xl border border-gray-200 dark:border-gray-700 z-50">
       {/* Header */}
       <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700 bg-blue-500 text-white rounded-t-lg">
         <div className="flex items-center gap-2">
@@ -173,7 +173,7 @@ const Chat = () => {
       </div>
 
       {/* Content */}
-      <div className="flex flex-col h-[calc(600px-140px)]">
+      <div className="flex flex-col h-[calc(90vh-140px)] max-h-[calc(600px-140px)]">
         {showConversations ? (
           /* Conversations List */
           <div className="flex-1 overflow-y-auto">

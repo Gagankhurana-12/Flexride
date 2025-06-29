@@ -230,12 +230,12 @@ export default function OwnerVehicles() {
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900 py-8">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between mb-8">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-8 gap-4">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900 dark:text-white">My Vehicles</h1>
-            <p className="text-gray-600 dark:text-gray-400 mt-1">Manage your vehicle listings and track performance</p>
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-white text-center sm:text-left">My Vehicles</h1>
+            <p className="text-gray-600 dark:text-gray-400 mt-1 text-center sm:text-left">Manage your vehicle listings and track performance</p>
           </div>
-          <div className="flex items-center space-x-4">
+          <div className="flex flex-row items-center space-x-4 w-full sm:w-auto justify-center sm:justify-end">
             <Button 
               onClick={handleChatClick} 
               variant="outline" 
@@ -258,7 +258,7 @@ export default function OwnerVehicles() {
         </div>
 
         <div className="mb-6 flex flex-col sm:flex-row gap-4">
-          <div className="relative flex-grow">
+          <div className="relative flex-grow w-full">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
             <input
               type="text"
@@ -268,7 +268,7 @@ export default function OwnerVehicles() {
               className="w-full pl-10 pr-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-800 dark:text-white"
             />
           </div>
-          <div className="sm:w-48">
+          <div className="sm:w-48 w-full">
             <select
               value={filterStatus}
               onChange={(e) => setFilterStatus(e.target.value)}
@@ -289,7 +289,7 @@ export default function OwnerVehicles() {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.6, delay: index * 0.1 }}
-                className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden hover:shadow-lg transition-shadow duration-200"
+                className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden hover:shadow-lg transition-shadow duration-200 max-w-xs mx-auto w-full"
               >
                 <div className="relative">
                   <img
@@ -389,7 +389,7 @@ export default function OwnerVehicles() {
                 exit={{ scale: 0.9, opacity: 0 }}
                 className="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl max-w-4xl w-full max-h-[95vh] overflow-y-auto"
               >
-                <div className="p-8">
+                <div className="p-4 sm:p-8">
                   <div className="flex items-center justify-between mb-8">
                     <div>
                       <h3 className="text-2xl font-bold text-gray-900 dark:text-white">
