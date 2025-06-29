@@ -1,8 +1,9 @@
 import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Car, Calendar, DollarSign, Star, Plus, Eye, Edit, Trash2, TrendingUp, Users, MapPin, AlertTriangle } from 'lucide-react';
+import { Car, Calendar, DollarSign, Star, Plus, Eye, Edit, Trash2, TrendingUp, Users, MapPin, AlertTriangle, MessageCircle } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
+import { useChat } from '../contexts/ChatContext';
 import Button from '../components/Button';
 import RatingStars from '../components/RatingStars';
 import { format, parseISO, isBefore, isAfter, startOfDay, endOfDay } from 'date-fns';
@@ -51,6 +52,7 @@ const fallbackImage = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzAwIiBoZWlnaHQ
 
 export default function Dashboard() {
   const { user, token } = useAuth();
+  const { unreadCount, setIsChatOpen, conversations } = useChat();
   const [vehicles, setVehicles] = useState([]);
   const [bookings, setBookings] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -116,6 +118,11 @@ export default function Dashboard() {
     ? (vehicles.reduce((sum, v) => sum + (v.ratings || 0), 0) / vehicles.length)
     : 0;
 
+  const handleChatClick = () => {
+    // Open chat window to show conversations list
+    setIsChatOpen(true);
+  };
+
   if (isLoading) {
     return <div className="flex justify-center items-center h-screen">Loading dashboard...</div>;
   }
@@ -178,6 +185,14 @@ export default function Dashboard() {
                 <div className="space-y-3">
                   <Button as={Link} to="/my-vehicles" variant="outline" className="w-full justify-start" icon={<Plus className="h-5 w-5 mr-2" />}>Add New Vehicle</Button>
                   <Button as={Link} to="/bookings" variant="outline" className="w-full justify-start" icon={<Calendar className="h-5 w-5 mr-2" />}>View All Bookings</Button>
+                  <Button onClick={handleChatClick} variant="outline" className="w-full justify-start" icon={<MessageCircle className="h-5 w-5 mr-2" />}>
+                    Messages
+                    {unreadCount > 0 && (
+                      <span className="ml-auto bg-red-500 text-white text-xs rounded-full h-4 w-4 flex items-center justify-center">
+                        {unreadCount > 9 ? '9+' : unreadCount}
+                      </span>
+                    )}
+                  </Button>
                   <Button as={Link} to="/profile" variant="outline" className="w-full justify-start" icon={<Users className="h-5 w-5 mr-2" />}>Update Profile</Button>
                 </div>
               </motion.div>

@@ -24,6 +24,7 @@ import RatingStars from '../components/RatingStars';
 import { useAuth } from '../contexts/AuthContext';
 import { useNotification } from '../contexts/NotificationContext';
 import { isSameDay, startOfToday } from 'date-fns';
+import ChatButton from '../components/ChatButton';
 
 const BACKEND_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
 
@@ -224,6 +225,63 @@ export default function VehicleDetails() {
         name: 'FlexRide',
         description: 'Vehicle Booking Payment',
         order_id: data.orderId,
+        prefill: {
+          name: user.name,
+          email: user.email,
+        },
+        theme: { color: '#3399cc' },
+        // Mobile-specific configurations
+        modal: {
+          ondismiss: function() {
+            addNotification('Payment cancelled', 'info');
+          }
+        },
+        // Ensure all payment methods are available
+        config: {
+          display: {
+            blocks: {
+              banks: {
+                name: "Pay using UPI",
+                instruments: [
+                  {
+                    method: "upi"
+                  }
+                ]
+              },
+              cards: {
+                name: "Pay using Cards",
+                instruments: [
+                  {
+                    method: "card"
+                  }
+                ]
+              },
+              netbanking: {
+                name: "Pay using Net Banking",
+                instruments: [
+                  {
+                    method: "netbanking"
+                  }
+                ]
+              },
+              other: {
+                name: "Other Payment Methods",
+                instruments: [
+                  {
+                    method: "wallet"
+                  },
+                  {
+                    method: "paylater"
+                  }
+                ]
+              }
+            },
+            sequence: ["block.banks", "block.cards", "block.netbanking", "block.other"],
+            preferences: {
+              show_default_blocks: false
+            }
+          }
+        },
         handler: async function (response) {
           // 3. On payment success, create the booking
           try {
@@ -258,12 +316,7 @@ export default function VehicleDetails() {
           } catch (err) {
             addNotification(err.message, 'error');
           }
-        },
-        prefill: {
-          name: user.name,
-          email: user.email,
-        },
-        theme: { color: '#3399cc' },
+        }
       };
       const rzp = new window.Razorpay(options);
       rzp.open();
@@ -463,6 +516,10 @@ export default function VehicleDetails() {
                   <div className="font-bold text-gray-800 dark:text-white">{vehicle.user?.name || 'Unknown Owner'}</div>
                   <div className="text-sm text-gray-500 dark:text-gray-400">
                     Joined in {vehicle.user?.createdAt ? new Date(vehicle.user.createdAt).getFullYear() : 'N/A'}
+                  </div>
+                  {/* Chat Button */}
+                  <div className="mt-2">
+                    <ChatButton vehicle={vehicle} />
                   </div>
                 </div>
               </div>
