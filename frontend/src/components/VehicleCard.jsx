@@ -37,7 +37,7 @@ export default function VehicleCard({ vehicle, onBook }) {
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3 }}
-      className="bg-white dark:bg-gray-800 rounded-xl shadow-sm hover:shadow-lg transition-all duration-300 overflow-hidden group"
+      className="flex flex-col h-full bg-white dark:bg-gray-800 rounded-xl shadow-sm hover:shadow-lg transition-all duration-300 overflow-hidden group"
     >
       <div className="relative">
         <img
@@ -59,7 +59,7 @@ export default function VehicleCard({ vehicle, onBook }) {
         </div>
       </div>
 
-      <div className="p-4">
+      <div className="flex flex-col flex-grow p-4">
         <div className="flex items-start justify-between mb-2">
           <h3 className="text-lg font-semibold text-gray-900 dark:text-white line-clamp-1">
             {name}
@@ -98,7 +98,7 @@ export default function VehicleCard({ vehicle, onBook }) {
           </div>
         </div>
 
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between mt-auto">
           <div className="flex items-center space-x-2">
             <img
               src={avatarUrl}

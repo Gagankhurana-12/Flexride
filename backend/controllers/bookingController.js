@@ -16,6 +16,13 @@ exports.createBooking = async (req, res) => {
     const vehicleDoc = await Vehicle.findById(vehicle);
     if (!vehicleDoc) return res.status(404).json({ message: 'Vehicle not found' });
 
+    // Prevent owner from booking their own vehicle
+    if (vehicleDoc.user.toString() === req.user._id.toString()) {
+      return res.status(403).json({ message: 'Owners cannot book their own vehicles.' });
+    }
+
+   
+
     const booking = await Booking.create({
       user: req.user._id,
       vehicle,

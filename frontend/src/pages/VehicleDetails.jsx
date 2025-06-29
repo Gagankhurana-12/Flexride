@@ -29,6 +29,18 @@ const BACKEND_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
 
 // We will remove the mockVehicle object and fetch data instead.
 
+// Add this helper to load Razorpay script if not already loaded
+function loadRazorpayScript() {
+  return new Promise((resolve) => {
+    if (window.Razorpay) return resolve(true);
+    const script = document.createElement('script');
+    script.src = 'https://checkout.razorpay.com/v1/checkout.js';
+    script.onload = () => resolve(true);
+    script.onerror = () => resolve(false);
+    document.body.appendChild(script);
+  });
+}
+
 export default function VehicleDetails() {
   const { id } = useParams();
   const { user, token } = useAuth(); // Get token for API calls
@@ -162,7 +174,7 @@ export default function VehicleDetails() {
     }
   };
 
-  const handleBooking = async () => {
+  const handleBookAndPay = async () => {
     if (!user) {
       addNotification('Please create an account to book a vehicle.', 'warning');
       navigate('/register', { state: { from: location.pathname } });
@@ -175,58 +187,86 @@ export default function VehicleDetails() {
     if (bookingType === 'daily' && !selectedDates.end) {
       selectedDates.end = selectedDates.start;
     }
-    
     if (bookingType === 'hourly') {
-        if (isSameDay(selectedDates.start, startOfToday())) {
-            const currentHour = new Date().getHours();
-            const startHour = parseInt(startTime.split(':')[0]);
-            if (startHour <= currentHour) {
-                addNotification('You cannot book a time that has already passed today.', 'error');
-                return;
-            }
+      if (isSameDay(selectedDates.start, startOfToday())) {
+        const currentHour = new Date().getHours();
+        const startHour = parseInt(startTime.split(':')[0]);
+        if (startHour <= currentHour) {
+          addNotification('You cannot book a time that has already passed today.', 'error');
+          return;
         }
+      }
     }
-    
+    // Prevent owner from booking their own vehicle (frontend check)
+    if (vehicle && vehicle.user && user._id === vehicle.user._id) {
+      addNotification('Owners cannot book their own vehicles.', 'error');
+      return;
+    }
     const { total } = calculateTotal();
-
-    const bookingData = {
-      vehicle: vehicle._id,
-      startDate: selectedDates.start,
-      totalPrice: total,
-      bookingType,
-    };
-
-    if (bookingType === 'daily') {
-      bookingData.endDate = selectedDates.end;
-    } else { // hourly
-      bookingData.startTime = startTime;
-      bookingData.endTime = endTime;
-    }
-
+    // 1. Create Razorpay order
     try {
-      const response = await fetch(`${BACKEND_URL}/api/bookings`, {
+      await loadRazorpayScript();
+      const res = await fetch(`${BACKEND_URL}/api/payments/create-order`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`,
         },
-        body: JSON.stringify(bookingData),
+        body: JSON.stringify({ amount: total, bookingId: id }), // id is vehicleId, but we use it as a receipt
       });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.message || 'Failed to create booking.');
-      }
-
-      addNotification('Booking created successfully! You will be redirected shortly.', 'success');
-      
-      // Redirect to my bookings page after a short delay
-      setTimeout(() => {
-        // We might need to use react-router-dom's history/navigate for this
-        window.location.href = '/bookings';
-      }, 2000);
-
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.message || 'Failed to create payment order.');
+      // 2. Open Razorpay checkout
+      const options = {
+        key: import.meta.env.VITE_RAZORPAY_KEY_ID || 'YOUR_RAZORPAY_KEY_ID',
+        amount: data.amount,
+        currency: data.currency,
+        name: 'FlexRide',
+        description: 'Vehicle Booking Payment',
+        order_id: data.orderId,
+        handler: async function (response) {
+          // 3. On payment success, create the booking
+          try {
+            const bookingData = {
+              vehicle: id,
+              startDate: selectedDates.start,
+              totalPrice: total,
+              bookingType,
+            };
+            if (bookingType === 'daily') {
+              bookingData.endDate = selectedDates.end;
+            } else {
+              bookingData.startTime = startTime;
+              bookingData.endTime = endTime;
+            }
+            // Optionally, you can add paymentId to bookingData
+            bookingData.paymentId = response.razorpay_payment_id;
+            const bookingRes = await fetch(`${BACKEND_URL}/api/bookings`, {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`,
+              },
+              body: JSON.stringify(bookingData),
+            });
+            const bookingResult = await bookingRes.json();
+            if (!bookingRes.ok) throw new Error(bookingResult.message || 'Booking failed after payment.');
+            addNotification('Booking created and payment successful!', 'success');
+            setTimeout(() => {
+              window.location.href = '/bookings';
+            }, 2000);
+          } catch (err) {
+            addNotification(err.message, 'error');
+          }
+        },
+        prefill: {
+          name: user.name,
+          email: user.email,
+        },
+        theme: { color: '#3399cc' },
+      };
+      const rzp = new window.Razorpay(options);
+      rzp.open();
     } catch (err) {
       addNotification(err.message, 'error');
     }
@@ -521,14 +561,14 @@ export default function VehicleDetails() {
                 </div>
               </div>
 
-              {/* Book Now Button */}
+              {/* Book & Pay Button */}
               <div className="mt-6">
                 <Button 
-                  onClick={handleBooking}
+                  onClick={handleBookAndPay}
                   className="w-full"
                   disabled={!selectedDates.start || !selectedDates.end}
                 >
-                  Book Now
+                  Book & Pay
                 </Button>
               </div>
 
