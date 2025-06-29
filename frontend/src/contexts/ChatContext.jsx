@@ -5,7 +5,7 @@ import { useNotification } from './NotificationContext';
 
 const ChatContext = createContext();
 
-const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:5000';
+const BACKEND_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
 
 export function ChatProvider({ children }) {
   const { user, token } = useAuth();
@@ -77,7 +77,11 @@ export function ChatProvider({ children }) {
             currentConversationRef.current._id === conversationId ||
             (currentConversationRef.current.vehicle._id === message.vehicle._id &&
              currentConversationRef.current.participants.some(p => p._id === message.sender._id) &&
-             currentConversationRef.current.participants.some(p => p._id === message.receiver._id));
+             currentConversationRef.current.participants.some(p => p._id === message.receiver._id)) ||
+            // Additional check for when user is the receiver
+            (currentConversationRef.current.vehicle._id === message.vehicle._id &&
+             message.receiver._id === user._id &&
+             currentConversationRef.current.participants.some(p => p._id === message.sender._id));
           
           if (isCurrentConversation) {
             setMessages(prev => [...prev, message]);
