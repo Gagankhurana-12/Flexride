@@ -121,9 +121,15 @@ const getVehicles = async (req, res) => {
     const vehicles = await Vehicle.find({ status: 'active' })
       .populate('user', 'name avatar')
       .sort({ createdAt: -1 });
+    
     res.json(vehicles);
   } catch (error) {
-    res.status(500).json({ message: 'Error fetching vehicles', error: error.message });
+    console.error('Error in getVehicles:', error);
+    res.status(500).json({ 
+      message: 'Error fetching vehicles', 
+      error: error.message,
+      stack: process.env.NODE_ENV === 'development' ? error.stack : undefined
+    });
   }
 };
 
@@ -141,7 +147,12 @@ const getVehicleById = async (req, res) => {
     
     res.json(vehicle);
   } catch (error) {
-    res.status(500).json({ message: 'Error fetching vehicle', error: error.message });
+    console.error('Error in getVehicleById:', error);
+    res.status(500).json({ 
+      message: 'Error fetching vehicle', 
+      error: error.message,
+      stack: process.env.NODE_ENV === 'development' ? error.stack : undefined
+    });
   }
 };
 

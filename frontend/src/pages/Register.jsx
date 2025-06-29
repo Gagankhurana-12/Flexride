@@ -6,8 +6,6 @@ import Button from '../components/Button';
 import Input from '../components/Input';
 import { motion } from 'framer-motion';
 
-console.log('Register page loaded');
-
 export default function Register() {
   const [formData, setFormData] = useState({
     name: '',

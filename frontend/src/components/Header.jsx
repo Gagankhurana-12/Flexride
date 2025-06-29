@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
-import { Car, Menu, X, User, LogOut, Sun, Moon, Bell, User as UserIcon } from 'lucide-react';
+import { Car, Menu, X, User, LogOut, Sun, Moon, Bell, User as UserIcon, MessageCircle } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { useTheme } from '../contexts/ThemeContext';
+import { useChat } from '../contexts/ChatContext';
 import { motion, AnimatePresence } from 'framer-motion';
 
 export default function Header() {
@@ -11,6 +12,7 @@ export default function Header() {
   const [pendingLogout, setPendingLogout] = useState(false);
   const { user, logout } = useAuth();
   const { theme, toggleTheme } = useTheme();
+  const { unreadCount, isChatOpen, setIsChatOpen, selectConversation, conversations } = useChat();
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -25,6 +27,11 @@ export default function Header() {
   const handleLogout = () => {
     navigate('/logout');
     setIsProfileOpen(false);
+  };
+
+  const handleChatClick = () => {
+    // Open chat window to show conversations list
+    setIsChatOpen(true);
   };
 
   const isActive = (path) => location.pathname === path;
@@ -93,6 +100,22 @@ export default function Header() {
 
           {/* Desktop Actions */}
           <div className="hidden md:flex items-center space-x-4">
+            {/* Chat Button */}
+            {user && (
+              <button
+                onClick={handleChatClick}
+                className="relative p-2 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+                title="Messages"
+              >
+                <MessageCircle className="h-5 w-5" />
+                {unreadCount > 0 && (
+                  <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                    {unreadCount > 9 ? '9+' : unreadCount}
+                  </span>
+                )}
+              </button>
+            )}
+
             {/* Theme Toggle */}
             <button
               onClick={toggleTheme}
@@ -215,6 +238,22 @@ export default function Header() {
                 </Link>
                 {user ? (
                   <>
+                    {/* Mobile Chat Button */}
+                    <button
+                      onClick={() => {
+                        handleChatClick();
+                        setIsMenuOpen(false);
+                      }}
+                      className="flex items-center w-full px-3 py-2 text-base font-medium text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400"
+                    >
+                      <MessageCircle className="h-5 w-5 mr-2" />
+                      Messages
+                      {unreadCount > 0 && (
+                        <span className="ml-auto bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                          {unreadCount > 9 ? '9+' : unreadCount}
+                        </span>
+                      )}
+                    </button>
                     <Link
                       to="/dashboard"
                       className="block px-3 py-2 text-base font-medium text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400"

@@ -15,11 +15,13 @@ import {
   Filter,
   Upload,
   X,
-  Camera
+  Camera,
+  MessageCircle
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '../contexts/AuthContext';
 import { useNotification } from '../contexts/NotificationContext';
+import { useChat } from '../contexts/ChatContext';
 import Button from '../components/Button';
 import RatingStars from '../components/RatingStars';
 
@@ -27,6 +29,7 @@ const BACKEND_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
 
 export default function OwnerVehicles() {
   const { addNotification } = useNotification();
+  const { unreadCount, setIsChatOpen } = useChat();
   const [vehicles, setVehicles] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [filterStatus, setFilterStatus] = useState('all');
@@ -219,6 +222,11 @@ export default function OwnerVehicles() {
 
   const fallbackImage = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAwIiBoZWlnaHQ9IjI1MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KICA8cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjZjNmNGY2Ii8+CiAgPHRleHQgeD0iNTAlIiB5PSI1MCUiIGZvbnQtZmFtaWx5PSJBcmlhbCwgc2Fucy1zZXJpZiIgZm9udC1zaXplPSIyMCIgZmlsbD0iIzY2NzM4NyIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZHk9Ii4zZW0iPk5vIEltYWdlPC90ZXh0Pgo8L3N2Zz4K';
 
+  const handleChatClick = () => {
+    // Open chat window to show conversations list
+    setIsChatOpen(true);
+  };
+
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900 py-8">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -227,7 +235,22 @@ export default function OwnerVehicles() {
             <h1 className="text-3xl font-bold text-gray-900 dark:text-white">My Vehicles</h1>
             <p className="text-gray-600 dark:text-gray-400 mt-1">Manage your vehicle listings and track performance</p>
           </div>
-          <Button onClick={handleAddClick} icon={<Plus className="h-5 w-5" />}>Add Vehicle</Button>
+          <div className="flex items-center space-x-4">
+            <Button 
+              onClick={handleChatClick} 
+              variant="outline" 
+              icon={<MessageCircle className="h-5 w-5" />}
+              className="relative"
+            >
+              Messages
+              {unreadCount > 0 && (
+                <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                  {unreadCount > 9 ? '9+' : unreadCount}
+                </span>
+              )}
+            </Button>
+            <Button onClick={handleAddClick} icon={<Plus className="h-5 w-5" />}>Add Vehicle</Button>
+          </div>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">

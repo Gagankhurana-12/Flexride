@@ -44,8 +44,6 @@ export function AuthProvider({ children }) {
       if (!res.ok) throw new Error('Not authenticated');
       const data = await res.json();
 
-      console.log('fetchCurrentUser', data);
-
       setUser(data);
       localStorage.setItem('flexride_user', JSON.stringify(data));
     } catch (error) {

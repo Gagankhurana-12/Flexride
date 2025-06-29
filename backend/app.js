@@ -12,8 +12,8 @@ const authRoutes = require('./routes/authRoutes');
 const vehicleRoutes = require('./routes/vehicleRoutes');
 const bookingRoutes = require('./routes/bookingRoutes');
 const paymentRoutes = require('./routes/paymentRoutes');
-
 const userRoutes = require('./routes/userRoutes');
+const chatRoutes = require('./routes/chatRoutes');
 
 const app = express();
 
@@ -84,8 +84,8 @@ app.use('/api/auth', authRoutes);
 app.use('/api/vehicles', vehicleRoutes);
 app.use('/api/bookings', bookingRoutes);
 app.use('/api/payments', paymentRoutes);
-
 app.use('/api/users', userRoutes);
+app.use('/api/chat', chatRoutes);
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 module.exports = app;
