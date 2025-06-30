@@ -167,7 +167,22 @@ const Bookings = () => {
 
   const renderBookingCard = (booking) => {
     const { vehicle } = booking;
-    
+    if (!vehicle) {
+      return (
+        <motion.div
+          key={booking._id}
+          layout
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -20 }}
+          className="bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-300"
+        >
+          <div className="p-5 flex flex-col items-center justify-center text-gray-500 dark:text-gray-400">
+            <p>Vehicle information not available.</p>
+          </div>
+        </motion.div>
+      );
+    }
     return (
       <motion.div
         key={booking._id}
@@ -180,8 +195,8 @@ const Bookings = () => {
         <div className="p-5 flex flex-col sm:flex-row items-start sm:items-center space-y-4 sm:space-y-0 sm:space-x-6">
           <div className="flex-shrink-0">
             <img
-              src={booking.vehicle?.imageUrl || 'https://via.placeholder.com/150x100/f3f4f6/6b7280?text=No+Image'}
-              alt={booking.vehicle?.name || 'Vehicle image'}
+              src={vehicle.imageUrl || 'https://via.placeholder.com/150x100/f3f4f6/6b7280?text=No+Image'}
+              alt={vehicle.name || 'Vehicle image'}
               className="h-24 w-36 rounded-lg object-cover"
             />
           </div>
@@ -316,6 +331,7 @@ const BookingFilter = ({ filters, activeFilter, setActiveFilter }) => (
 const BookingDetailsModal = ({ booking, onClose, onCancelBooking, isCancelling }) => {
   if (!booking) return null;
   const { vehicle } = booking;
+  if (!vehicle) return null;
 
   const getStatusInfo = (booking) => {
     const now = new Date();
