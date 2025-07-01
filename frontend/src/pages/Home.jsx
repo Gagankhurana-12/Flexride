@@ -4,6 +4,9 @@ import { MapPin, Star, Car, Users, Zap, Shield, Clock, ArrowRight } from 'lucide
 import { motion } from 'framer-motion';
 import VehicleCard from '../components/VehicleCard';
 import Button from '../components/Button';
+import { useAuth } from '../contexts/AuthContext';
+import { useNotification } from '../contexts/NotificationContext';
+import { useNavigate } from 'react-router-dom';
 
 const BACKEND_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
 
@@ -39,6 +42,9 @@ const stats = [
 
 export default function Home() {
   const [featuredVehicles, setFeaturedVehicles] = React.useState([]);
+  const { user } = useAuth();
+  const { addNotification } = useNotification();
+  const navigate = useNavigate();
 
   React.useEffect(() => {
     fetch(`${BACKEND_URL}/api/vehicles`)
@@ -206,11 +212,19 @@ export default function Home() {
             Join thousands of satisfied customers who trust FlexRide for their transportation needs.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Link to="/register">
-              <Button size="lg" className="min-w-[200px]">
-                Sign Up Now
-              </Button>
-            </Link>
+            <Button
+              size="lg"
+              className="min-w-[200px]"
+              onClick={() => {
+                if (user) {
+                  addNotification('You are already logged in.', 'warning');
+                } else {
+                  navigate('/register');
+                }
+              }}
+            >
+              Sign Up Now
+            </Button>
             <Link to="/vehicles">
               <Button size="lg" variant="outline" className="min-w-[200px]">
                 Browse Vehicles
