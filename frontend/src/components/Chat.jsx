@@ -205,31 +205,29 @@ const Chat = () => {
                     {conversations.map((conversation) => {
                       // Find the other participant (not the current user)
                       const otherUser = user ? conversation.participants.find(
-                        participant => participant._id !== user._id
+                        participant => participant && participant._id !== user._id
                       ) : null;
-                      
-                      if (!otherUser) {
+                      if (!otherUser || !otherUser.name) {
                         console.warn('No other user found in conversation:', conversation);
                         return null;
                       }
-                      
                       const unread = user ? (
                         conversation.unreadCount instanceof Map 
                           ? (conversation.unreadCount.get(user._id) || 0)
                           : (conversation.unreadCount?.[user._id] || 0)
                       ) : 0;
                       const isOnline = isUserOnline(otherUser._id);
-                      
+                      const vehicleName = conversation.vehicle && conversation.vehicle.name ? conversation.vehicle.name : 'Unknown Vehicle';
                       return (
                         <div
-                          key={conversation._id || `${conversation.vehicle._id}-${otherUser._id}`}
+                          key={conversation._id || `${conversation.vehicle?._id || 'no-vehicle'}-${otherUser._id}`}
                           onClick={() => handleConversationSelect(conversation)}
                           className="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 cursor-pointer transition-colors"
                         >
                           <div className="relative">
                             <img
-                              src={otherUser.avatar || `https://ui-avatars.com/api/?name=${otherUser.name}&background=random`}
-                              alt={otherUser.name}
+                              src={otherUser.avatar || `https://ui-avatars.com/api/?name=${(otherUser.name || 'U').charAt(0)}&background=random`}
+                              alt={otherUser.name || 'User'}
                               className="w-10 h-10 rounded-full object-cover"
                             />
                             {isOnline && (
@@ -239,7 +237,7 @@ const Chat = () => {
                           <div className="flex-1 min-w-0">
                             <div className="flex items-center justify-between">
                               <h4 className="font-medium text-gray-900 dark:text-white truncate">
-                                {otherUser.name}
+                                {otherUser.name || 'User'}
                               </h4>
                               {conversation.lastMessageAt && (
                                 <span className="text-xs text-gray-500 dark:text-gray-400">
@@ -248,7 +246,7 @@ const Chat = () => {
                               )}
                             </div>
                             <p className="text-sm text-gray-600 dark:text-gray-300 truncate">
-                              {conversation.vehicle.name}
+                              {vehicleName}
                             </p>
                             {conversation.lastMessage && (
                               <p className="text-xs text-gray-500 dark:text-gray-400 truncate">
