@@ -71,7 +71,7 @@ function App() {
                   <Route path="*" element={<Navigate to="/" replace />} />
                 </Routes>
               </main>
-              <Toaster position="top-right" />
+              <Toaster position="top-right" toastOptions={{ duration: 1000 }} />
               <Chat />
             </div>
           </ChatProvider>

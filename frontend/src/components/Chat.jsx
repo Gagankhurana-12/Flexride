@@ -208,7 +208,6 @@ const Chat = () => {
                         participant => participant && participant._id !== user._id
                       ) : null;
                       if (!otherUser || !otherUser.name) {
-                        console.warn('No other user found in conversation:', conversation);
                         return null;
                       }
                       const unread = user ? (

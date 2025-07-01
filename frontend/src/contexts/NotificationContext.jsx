@@ -12,10 +12,10 @@ export function NotificationProvider({ children }) {
     
     setNotifications(prev => [notification, ...prev]);
     
-    // Auto remove after 5 seconds
+    // Auto remove after 3 seconds
     setTimeout(() => {
       removeNotification(id);
-    }, 5000);
+    }, 3000);
     
     // Show toast
     switch (type) {
