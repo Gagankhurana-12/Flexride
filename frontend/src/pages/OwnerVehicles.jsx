@@ -249,7 +249,7 @@ export default function OwnerVehicles() {
                 </span>
               )}
             </Button>
-            <Button onClick={handleAddClick} icon={<Plus className="h-5 w-5" />}>Add Vehicle</Button>
+          <Button onClick={handleAddClick} icon={<Plus className="h-5 w-5" />}>Add Vehicle</Button>
           </div>
         </div>
 

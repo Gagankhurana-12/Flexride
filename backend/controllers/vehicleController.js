@@ -1,5 +1,6 @@
 const Vehicle = require('../models/Vehicle');
 const Booking = require('../models/Booking');
+const { validateVehicleImage } = require('../utils/aiValidation');
 
 const getBookingStatus = (booking) => {
   if (booking.status === 'cancelled') return 'cancelled';
@@ -88,8 +89,24 @@ const addVehicle = async (req, res) => {
   }
 
   if (req.file) {
-    // Get the secure URL from Cloudinary's response
-    imageUrl = req.file.path;
+    try {
+      // AI validation: Check if the image contains a vehicle
+      const isValidVehicleImage = await validateVehicleImage(req.file.buffer);
+      
+      if (!isValidVehicleImage) {
+        return res.status(400).json({ 
+          message: 'Image must clearly show a vehicle. Please upload a photo of a car, motorcycle, or other vehicle.' 
+        });
+      }
+      
+      // If validation passes, get the secure URL from Cloudinary's response
+      imageUrl = req.file.path;
+    } catch (error) {
+      console.error('Error during AI validation:', error);
+      return res.status(500).json({ 
+        message: 'Error validating image. Please try again.' 
+      });
+    }
   }
 
   try {
@@ -183,9 +200,26 @@ const updateVehicle = async (req, res) => {
     vehicle.fuelType = fuelType || vehicle.fuelType;
     vehicle.location = location || vehicle.location;
 
-    // If a new image is uploaded, update the imageUrl
+    // If a new image is uploaded, validate it and update the imageUrl
     if (req.file) {
-      vehicle.imageUrl = req.file.path;
+      try {
+        // AI validation: Check if the image contains a vehicle
+        const isValidVehicleImage = await validateVehicleImage(req.file.buffer);
+        
+        if (!isValidVehicleImage) {
+          return res.status(400).json({ 
+            message: 'Image must clearly show a vehicle. Please upload a photo of a car, motorcycle, or other vehicle.' 
+          });
+        }
+        
+        // If validation passes, update the image URL
+        vehicle.imageUrl = req.file.path;
+      } catch (error) {
+        console.error('Error during AI validation:', error);
+        return res.status(500).json({ 
+          message: 'Error validating image. Please try again.' 
+        });
+      }
     }
 
     const updatedVehicle = await vehicle.save();
