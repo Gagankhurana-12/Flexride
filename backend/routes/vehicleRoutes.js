@@ -22,8 +22,8 @@ router.get('/', getVehicles);
 router.get('/:id', getVehicleById);
 
 // Protected CRUD routes
-router.post('/', protect, upload.single('image'), addVehicle);
-router.put('/:id', protect, upload.single('image'), updateVehicle);
+router.post('/', protect, upload, addVehicle);
+router.put('/:id', protect, upload, updateVehicle);
 router.delete('/:id', protect, deleteVehicle);
 router.post('/:vehicleId/bookings/:bookingId/rate', protect, rateVehicle);
 

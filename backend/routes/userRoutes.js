@@ -5,7 +5,7 @@ const {
   updateUserProfile
 } = require('../controllers/userController');
 const { protect } = require('../middlewares/authMiddleware');
-const upload = require('../config/cloudinary');
+const { userUpload } = require('../config/multerConfig');
 
 const router = express.Router();
 
@@ -18,7 +18,7 @@ router.route('/profile')
 router.post(
   '/upload-documents',
   protect,
-  upload.fields([
+  userUpload.fields([
     { name: 'idProof', maxCount: 1 },
     { name: 'license', maxCount: 1 }
   ]),

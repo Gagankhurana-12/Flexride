@@ -223,8 +223,8 @@ export default function Home() {
                 }
               }}
             >
-              Sign Up Now
-            </Button>
+                Sign Up Now
+              </Button>
             <Link to="/vehicles">
               <Button size="lg" variant="outline" className="min-w-[200px]">
                 Browse Vehicles
