@@ -42,6 +42,8 @@ Whether it’s a two-wheeler for a quick trip or a four-wheeler for a weekend ge
 
 ---
 
+Deployed Link - https://flexride.netlify.app/
+
 ## 📂 Project Structure
 
 ```plaintext
@@ -64,3 +66,8 @@ flexride/
 │   └── package.json
 │
 └── README.md
+
+
+
+
+
