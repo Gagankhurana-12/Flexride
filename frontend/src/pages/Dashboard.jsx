@@ -12,39 +12,48 @@ import toast from 'react-hot-toast';
 const BACKEND_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
 
 const getBookingStatus = (booking) => {
+  if (!booking) return 'unknown';
+  
   if (booking.status === 'cancelled') {
     return 'cancelled';
   }
 
+  if (!booking.startDate) return 'upcoming';
+
   const now = new Date();
   const type = booking.bookingType || 'daily';
 
-  if (type === 'hourly') {
-    const bookingDate = startOfDay(new Date(booking.startDate));
-    const [startH, startM] = (booking.startTime || "00:00").split(":");
-    const [endH, endM] = (booking.endTime || "00:00").split(":");
+  try {
+    if (type === 'hourly') {
+      const bookingDate = startOfDay(new Date(booking.startDate));
+      const [startH, startM] = (booking.startTime || "00:00").split(":");
+      const [endH, endM] = (booking.endTime || "00:00").split(":");
 
-    const startDateTime = new Date(bookingDate.getTime());
-    startDateTime.setHours(startH, startM, 0, 0);
+      const startDateTime = new Date(bookingDate.getTime());
+      startDateTime.setHours(startH, startM, 0, 0);
 
-    const endDateTime = new Date(bookingDate.getTime());
-    endDateTime.setHours(endH, endM, 0, 0);
+      const endDateTime = new Date(bookingDate.getTime());
+      endDateTime.setHours(endH, endM, 0, 0);
 
-    if (endDateTime < startDateTime) {
-      endDateTime.setDate(endDateTime.getDate() + 1);
+      if (endDateTime < startDateTime) {
+        endDateTime.setDate(endDateTime.getDate() + 1);
+      }
+
+      if (isBefore(now, startDateTime)) return 'upcoming';
+      if (isAfter(now, endDateTime)) return 'completed';
+      return 'active';
+
+    } else { // Daily
+      const startDate = startOfDay(new Date(booking.startDate));
+      const endDate = endOfDay(new Date(booking.endDate || booking.startDate));
+
+      if (isBefore(now, startDate)) return 'upcoming';
+      if (isAfter(now, endDate)) return 'completed';
+      return 'active';
     }
-
-    if (isBefore(now, startDateTime)) return 'upcoming';
-    if (isAfter(now, endDateTime)) return 'completed';
-    return 'active';
-
-  } else { // Daily
-    const startDate = startOfDay(new Date(booking.startDate));
-    const endDate = endOfDay(new Date(booking.endDate || booking.startDate));
-
-    if (isBefore(now, startDate)) return 'upcoming';
-    if (isAfter(now, endDate)) return 'completed';
-    return 'active';
+  } catch (error) {
+    console.error('Error calculating booking status:', error);
+    return 'upcoming';
   }
 };
 
@@ -62,6 +71,8 @@ export default function Dashboard() {
   useEffect(() => {
     if (!token) {
       setIsLoading(false);
+      setVehicles([]);
+      setBookings([]);
       return;
     }
 
@@ -89,7 +100,10 @@ export default function Dashboard() {
         setBookings(Array.isArray(bookingsData) ? bookingsData.sort((a, b) => new Date(b.startDate) - new Date(a.startDate)) : []);
 
       } catch (err) {
+        console.error('Dashboard fetch error:', err);
         setError(err.message);
+        setVehicles([]);
+        setBookings([]);
       } finally {
         setIsLoading(false);
       }
@@ -112,7 +126,7 @@ export default function Dashboard() {
 
   const totalEarnings = bookings
     .filter(b => getBookingStatus(b) === 'completed')
-    .reduce((sum, b) => sum + b.totalPrice, 0);
+    .reduce((sum, b) => sum + (b.totalPrice || 0), 0);
 
   const averageRating = vehicles.length > 0
     ? (vehicles.reduce((sum, v) => sum + (v.ratings || 0), 0) / vehicles.length)
@@ -199,22 +213,26 @@ export default function Dashboard() {
               <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} className="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6 border border-gray-200 dark:border-gray-700">
                 <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Recent Activity</h3>
                 <div className="space-y-4">
-                  {bookings.slice(0, 3).map(b => {
-                    const status = getBookingStatus(b);
-                    return (
-                      <div key={b._id} className="flex items-center space-x-3">
-                        <div className={`w-2 h-2 ${getStatusColor(status).split(' ')[0]} rounded-full`}></div>
-                        <div className="flex-1">
-                          <p className="text-sm text-gray-900 dark:text-white">
-                            Booking {status} for {b.vehicle.name}
-                          </p>
-                          <p className="text-xs text-gray-500 dark:text-gray-400">
-                            {format(parseISO(b.createdAt), 'MMM d, yyyy')}
-                          </p>
+                  {bookings.length === 0 ? (
+                    <p className="text-sm text-gray-500 dark:text-gray-400 text-center py-4">No recent activity</p>
+                  ) : (
+                    bookings.slice(0, 3).map(b => {
+                      const status = getBookingStatus(b);
+                      return (
+                        <div key={b._id} className="flex items-center space-x-3">
+                          <div className={`w-2 h-2 ${getStatusColor(status).split(' ')[0]} rounded-full`}></div>
+                          <div className="flex-1">
+                            <p className="text-sm text-gray-900 dark:text-white">
+                              Booking {status} for {b.vehicle?.name || 'Unknown Vehicle'}
+                            </p>
+                            <p className="text-xs text-gray-500 dark:text-gray-400">
+                              {b.createdAt ? format(parseISO(b.createdAt), 'MMM d, yyyy') : 'N/A'}
+                            </p>
+                          </div>
                         </div>
-                      </div>
-                    );
-                  })}
+                      );
+                    })
+                  )}
                 </div>
               </motion.div>
             </div>
@@ -222,59 +240,79 @@ export default function Dashboard() {
 
           {activeTab === 'bookings' && (
             <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
-              <div className="overflow-x-auto">
-                <table className="w-full">
-                  <thead className="bg-gray-50 dark:bg-gray-700">
-                    <tr>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Vehicle</th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Dates</th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Amount</th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Status</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
-                    {bookings.map((booking) => {
-                      const status = getBookingStatus(booking);
-                      return (
-                        <tr key={booking._id} className="hover:bg-gray-50 dark:hover:bg-gray-700">
-                          <td className="px-6 py-4 whitespace-nowrap"><div className="text-sm font-medium text-gray-900 dark:text-white">{booking.vehicle.name}</div></td>
-                          <td className="px-6 py-4 whitespace-nowrap"><div className="text-sm text-gray-500 dark:text-gray-400">
-                            {booking.startDate ? format(parseISO(booking.startDate), 'MMM d, yyyy') : 'N/A'} - {booking.endDate ? format(parseISO(booking.endDate), 'MMM d, yyyy') : 'N/A'}
-                          </div></td>
-                          <td className="px-6 py-4 whitespace-nowrap"><div className="text-sm font-medium text-gray-900 dark:text-white">₹{booking.totalPrice.toLocaleString()}</div></td>
-                          <td className="px-6 py-4 whitespace-nowrap"><span className={`capitalize inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getStatusColor(status)}`}>{status}</span></td>
-                        </tr>
-                      );
-                    })}
-                  </tbody>
-                </table>
-              </div>
+              {bookings.length === 0 ? (
+                <div className="flex flex-col items-center justify-center py-12 px-6 text-center">
+                  <Calendar className="h-16 w-16 text-gray-400 dark:text-gray-600 mb-4" />
+                  <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">No bookings yet</h3>
+                  <p className="text-gray-500 dark:text-gray-400 mb-6">You don't have any bookings at the moment.</p>
+                  <Button as={Link} to="/vehicles" icon={<Car className="h-5 w-5 mr-2" />}>Browse Vehicles</Button>
+                </div>
+              ) : (
+                <div className="overflow-x-auto">
+                  <table className="w-full">
+                    <thead className="bg-gray-50 dark:bg-gray-700">
+                      <tr>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Vehicle</th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Dates</th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Amount</th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Status</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
+                      {bookings.map((booking) => {
+                        const status = getBookingStatus(booking);
+                        return (
+                          <tr key={booking._id} className="hover:bg-gray-50 dark:hover:bg-gray-700">
+                            <td className="px-6 py-4 whitespace-nowrap"><div className="text-sm font-medium text-gray-900 dark:text-white">{booking.vehicle?.name || 'Unknown Vehicle'}</div></td>
+                            <td className="px-6 py-4 whitespace-nowrap"><div className="text-sm text-gray-500 dark:text-gray-400">
+                              {booking.startDate ? format(parseISO(booking.startDate), 'MMM d, yyyy') : 'N/A'} - {booking.endDate ? format(parseISO(booking.endDate), 'MMM d, yyyy') : 'N/A'}
+                            </div></td>
+                            <td className="px-6 py-4 whitespace-nowrap"><div className="text-sm font-medium text-gray-900 dark:text-white">₹{booking.totalPrice?.toLocaleString() || '0'}</div></td>
+                            <td className="px-6 py-4 whitespace-nowrap"><span className={`capitalize inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getStatusColor(status)}`}>{status}</span></td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+                </div>
+              )}
             </motion.div>
           )}
 
           {activeTab === 'vehicles' && (
             <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="space-y-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {vehicles.map(vehicle => (
-                  <div key={vehicle._id} className="bg-white dark:bg-gray-800 rounded-xl shadow-sm overflow-hidden border border-gray-200 dark:border-gray-700">
-                    <img src={vehicle.imageUrl || 'https://via.placeholder.com/400x250/f3f4f6/6b7280?text=No+Image'} alt={vehicle.name} className="w-full h-40 object-cover" />
-                    <div className="p-4">
-                      <h3 className="font-semibold text-gray-900 dark:text-white">{vehicle.name}</h3>
-                      <p className="text-sm text-gray-500 dark:text-gray-400">{vehicle.location}</p>
-                      <div className="flex items-center justify-between mb-4">
-                        <div className="text-lg font-bold text-gray-900 dark:text-white">₹{vehicle.pricePerDay}/day</div>
-                        <div className="flex items-center space-x-2">
-                           <RatingStars rating={vehicle.ratings || 0} size="xs" />
+              {vehicles.length === 0 ? (
+                <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-12">
+                  <div className="flex flex-col items-center justify-center text-center">
+                    <Car className="h-16 w-16 text-gray-400 dark:text-gray-600 mb-4" />
+                    <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">No vehicles listed</h3>
+                    <p className="text-gray-500 dark:text-gray-400 mb-6">Start earning by listing your vehicle for rent.</p>
+                    <Button as={Link} to="/my-vehicles" icon={<Plus className="h-5 w-5 mr-2" />}>List Your Vehicle</Button>
+                  </div>
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {vehicles.map(vehicle => (
+                    <div key={vehicle._id} className="bg-white dark:bg-gray-800 rounded-xl shadow-sm overflow-hidden border border-gray-200 dark:border-gray-700">
+                      <img src={vehicle.imageUrl || 'https://via.placeholder.com/400x250/f3f4f6/6b7280?text=No+Image'} alt={vehicle.name} className="w-full h-40 object-cover" />
+                      <div className="p-4">
+                        <h3 className="font-semibold text-gray-900 dark:text-white">{vehicle.name}</h3>
+                        <p className="text-sm text-gray-500 dark:text-gray-400">{vehicle.location}</p>
+                        <div className="flex items-center justify-between mb-4">
+                          <div className="text-lg font-bold text-gray-900 dark:text-white">₹{vehicle.pricePerDay}/day</div>
+                          <div className="flex items-center space-x-2">
+                             <RatingStars rating={vehicle.ratings || 0} size="xs" />
+                          </div>
+                        </div>
+                        <div className="flex space-x-2">
+                          <Button as={Link} to={`/vehicles/${vehicle._id}`} variant="outline" size="sm" className="flex-1" icon={<Eye className="h-4 w-4 mr-1" />}>View</Button>
+                          <Button as={Link} to="/my-vehicles" variant="outline" size="sm" className="flex-1" icon={<Edit className="h-4 w-4 mr-1" />}>Edit</Button>
                         </div>
                       </div>
-                      <div className="flex space-x-2">
-                        <Button as={Link} to={`/vehicles/${vehicle._id}`} variant="outline" size="sm" className="flex-1" icon={<Eye className="h-4 w-4 mr-1" />}>View</Button>
-                        <Button as={Link} to="/my-vehicles" variant="outline" size="sm" className="flex-1" icon={<Edit className="h-4 w-4 mr-1" />}>Edit</Button>
-                      </div>
                     </div>
-                  </div>
-                ))}
-              </div>
+                  ))}
+                </div>
+              )}
             </motion.div>
           )}
         </div>
