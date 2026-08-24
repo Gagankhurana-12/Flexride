@@ -1,4 +1,5 @@
 const Razorpay = require('razorpay');
+const { verifyPaymentSignature } = require('../utils/razorpay');
 
 const razorpay = new Razorpay({
   key_id: process.env.RAZORPAY_KEY_ID,
@@ -25,3 +26,21 @@ exports.createRazorpayOrder = async (req, res) => {
     res.status(500).json({ message: 'Failed to create Razorpay order', error: error.message });
   }
 }; 
+
+exports.verifyRazorpayPayment = async (req, res) => {
+  const { razorpay_order_id, razorpay_payment_id, razorpay_signature } = req.body;
+
+  if (!razorpay_order_id || !razorpay_payment_id || !razorpay_signature) {
+    return res.status(400).json({ message: 'Payment verification details are required.' });
+  }
+
+  if (!verifyPaymentSignature({
+    orderId: razorpay_order_id,
+    paymentId: razorpay_payment_id,
+    signature: razorpay_signature,
+  })) {
+    return res.status(400).json({ message: 'Invalid payment signature.' });
+  }
+
+  res.json({ verified: true });
+};

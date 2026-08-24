@@ -38,6 +38,18 @@ const bookingSchema = new mongoose.Schema({
     type: Number,
     required: true
   },
+  paymentId: {
+    type: String,
+    required: true,
+  },
+  paymentOrderId: {
+    type: String,
+    required: true,
+  },
+  paymentSignature: {
+    type: String,
+    required: true,
+  },
   isRated: {
     type: Boolean,
     default: false,

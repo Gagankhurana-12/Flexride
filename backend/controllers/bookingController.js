@@ -1,5 +1,6 @@
 const Booking = require('../models/Booking');
 const Vehicle = require('../models/Vehicle');
+const { verifyPaymentSignature } = require('../utils/razorpay');
 
 exports.createBooking = async (req, res) => {
   const { 
@@ -9,10 +10,21 @@ exports.createBooking = async (req, res) => {
     totalPrice, 
     bookingType, 
     startTime, 
-    endTime 
+    endTime,
+    paymentId,
+    paymentOrderId,
+    paymentSignature
   } = req.body;
 
   try {
+    if (!verifyPaymentSignature({
+      orderId: paymentOrderId,
+      paymentId,
+      signature: paymentSignature,
+    })) {
+      return res.status(400).json({ message: 'Payment verification failed.' });
+    }
+
     const vehicleDoc = await Vehicle.findById(vehicle);
     if (!vehicleDoc) return res.status(404).json({ message: 'Vehicle not found' });
 
@@ -32,6 +44,9 @@ exports.createBooking = async (req, res) => {
       bookingType,
       startTime,
       endTime,
+      paymentId,
+      paymentOrderId,
+      paymentSignature,
     });
 
     // Populate the vehicle and user details for the response

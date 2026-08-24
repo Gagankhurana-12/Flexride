@@ -7,8 +7,6 @@ const connectDB = require('./config/db');
 const path = require('path');
 const app = require('./app');
 
-connectDB();
-
 const PORT = process.env.PORT || 5000;
 
 // Create HTTP server
@@ -26,8 +24,9 @@ const io = new Server(httpServer, {
 const socketHandler = require('./socket/socketHandler');
 socketHandler(io);
 
-// Start server
-httpServer.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
-  console.log(`Socket.IO server is ready for real-time chat`);
+connectDB().then(() => {
+  httpServer.listen(PORT, () => {
+    console.log(`Server running on port ${PORT}`);
+    console.log(`Socket.IO server is ready for real-time chat`);
+  });
 });

@@ -283,13 +283,28 @@ export default function VehicleDetails() {
           }
         },
         handler: async function (response) {
-          // 3. On payment success, create the booking
           try {
+            const verificationRes = await fetch(`${BACKEND_URL}/api/payments/verify`, {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`,
+              },
+              body: JSON.stringify(response),
+            });
+            const verificationResult = await verificationRes.json();
+            if (!verificationRes.ok || !verificationResult.verified) {
+              throw new Error(verificationResult.message || 'Payment verification failed.');
+            }
+
             const bookingData = {
               vehicle: id,
               startDate: selectedDates.start,
               totalPrice: total,
               bookingType,
+              paymentId: response.razorpay_payment_id,
+              paymentOrderId: response.razorpay_order_id,
+              paymentSignature: response.razorpay_signature,
             };
             if (bookingType === 'daily') {
               bookingData.endDate = selectedDates.end;
@@ -297,8 +312,6 @@ export default function VehicleDetails() {
               bookingData.startTime = startTime;
               bookingData.endTime = endTime;
             }
-            // Optionally, you can add paymentId to bookingData
-            bookingData.paymentId = response.razorpay_payment_id;
             const bookingRes = await fetch(`${BACKEND_URL}/api/bookings`, {
               method: 'POST',
               headers: {
