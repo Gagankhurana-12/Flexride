@@ -17,7 +17,7 @@ Whether it’s a two-wheeler for a quick trip or a four-wheeler for a weekend ge
 - 💬 **Real-Time Chat with Owner** — Contact the vehicle owner instantly.
 - 💳 **Secure Payment Integration** — Complete rentals with online transactions.
 - 🤖 **AI-Powered Image Validation (Hugging Face)** — Ensures uploaded images are of vehicles only.
-- 🛠 **Admin Support** — Add, edit, or remove vehicle listings (future scope).
+
 
 ---
 
@@ -29,7 +29,7 @@ Whether it’s a two-wheeler for a quick trip or a four-wheeler for a weekend ge
 - 🔄 Axios (API calls)
 - 🗺 React Router DOM (Navigation)
 - 💬 Socket.io Client (Real-time chat)
-- 💳 Stripe.js / Razorpay.js (Payment processing)
+- 💳 Razorpay.js (Payment processing)
 
 ### **Backend**
 - 🟢 Node.js
